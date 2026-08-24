@@ -98,7 +98,7 @@ export interface PaymentReceipt {
 
 export interface Registration {
   id: string;
-  ticketHash: string;
+  ticketHash: string; // legacy UI field; contains the IGX-XXXX Registration ID
   registrationNumber?: string;
   userId: string;
   userName: string;
@@ -168,7 +168,7 @@ export interface SentEmailLog {
   recipientName: string;
   subject: string;
   eventTitle: string;
-  ticketHash: string;
+  ticketHash: string; // legacy UI field; contains the IGX-XXXX Registration ID
   receiptNumber: string;
   amountPaid: number;
   sentAt: string;

@@ -13,7 +13,7 @@ Admin approval → secure verification code + QR token → Resend email → QR/c
 1. Copy `.env.example` to `.env`.
 2. Add your Supabase URL and **service-role key** to the server environment.
 3. Add your Resend API key and verified sender.
-4. Run the SQL migrations in `supabase/migrations/` in order.
+4. Run the single clean database schema `supabase/schema.sql` once in a fresh Supabase project.
 5. Run `npm install`.
 6. Run `npm run dev`.
 7. Open `http://localhost:3000/api/health`.

@@ -151,7 +151,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     const result = await approveRegistration(reg.id, adminKey);
     if (result.success) {
       soundFx.playSuccess();
-      setActionNotification(`✓ Approved pass for ${reg.userName}! (${result.verification_code || reg.id})`);
+      setActionNotification(`✓ Approved pass for ${reg.userName}! (${result.verification_code || reg.registrationNumber})`);
       loadData(adminKey);
     } else {
       soundFx.playAlert();
@@ -314,7 +314,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
     const headers = [
       'Registration ID',
-      'Ticket Hash',
       'Participant Name',
       'Age',
       'Email',
@@ -333,7 +332,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
     const rows = registrations.map((r) => [
       r.id,
-      r.ticketHash,
+      r.registrationNumber || r.ticketHash,
       `"${r.userName}"`,
       r.userAge || '20',
       r.userEmail,
@@ -746,7 +745,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                       <tr key={reg.id} className="hover:bg-[#06150a] transition-colors">
                         <td className="p-3">
                           <div className="font-bold text-amber-400">{reg.registrationNumber || reg.ticketHash}</div>
-                          <div className="text-[10px] text-neutral-500">{reg.id}</div>
                         </td>
                         <td className="p-3">
                           <div className="font-bold text-white flex items-center gap-1.5">

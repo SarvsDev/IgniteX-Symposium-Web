@@ -1,7 +1,6 @@
 import 'dotenv/config';
 import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
-import crypto from 'crypto';
 import QRCode from 'qrcode';
 import { Resend } from 'resend';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
@@ -99,25 +98,13 @@ function escapeHtml(value: unknown): string {
     .replace(/'/g, '&#039;');
 }
 
-function generateVerificationCode(): string {
-  const alphabet = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
-  const bytes = crypto.randomBytes(8);
-  let value = '';
-  for (let i = 0; i < bytes.length; i++) value += alphabet[bytes[i] % alphabet.length];
-  return `IGN-2026-${value.slice(0, 4)}-${value.slice(4, 8)}`;
-}
-
-function generateQrToken(): string {
-  return crypto.randomBytes(32).toString('hex');
-}
-
 function toLegacyRegistration(row: any, events: any[], teams: any[] = [], members: any[] = []): Registration {
   const firstEvent = events[0] || {};
   const team = teams[0];
   const teamMembers = team ? members.filter((m) => m.team_id === team.id).map((m) => m.member_name) : undefined;
   return {
     id: row.id,
-    ticketHash: row.verification_code || `PENDING-${row.registration_number}`,
+    ticketHash: row.registration_number || '',
     registrationNumber: row.registration_number,
     receiptNumber: row.receipt_number || `RCPT-${row.registration_number.replace(/^REG-2026-/, '').replace(/^IGX-/, '')}`,
     userId: row.participant_id,
@@ -183,8 +170,8 @@ function parseDataUrl(input: string): { buffer: Buffer; mime: string; extension:
   const match = input.match(/^data:([^;]+);base64,(.+)$/s);
   if (!match) return null;
   const mime = match[1];
-  if (!['image/png', 'image/jpeg', 'image/webp'].includes(mime)) return null;
-  const extension = mime === 'image/png' ? 'png' : mime === 'image/webp' ? 'webp' : 'jpg';
+  if (!['image/png', 'image/jpeg', 'image/webp', 'application/pdf'].includes(mime)) return null;
+  const extension = mime === 'image/png' ? 'png' : mime === 'image/webp' ? 'webp' : mime === 'application/pdf' ? 'pdf' : 'jpg';
   return { buffer: Buffer.from(match[2], 'base64'), mime, extension };
 }
 
@@ -591,20 +578,20 @@ app.get('/api/admin/stats', async (req, res) => {
   }
 });
 
-function buildApprovalEmail(input: { name: string; registrationNumber: string; code: string; events: any[]; teamNames: string[]; amount: number; qrUrl: string }) {
+function buildApprovalEmail(input: { name: string; registrationNumber: string; events: any[]; teamNames: string[]; amount: number; qrUrl: string }) {
   const eventsHtml = input.events.map((e) => `<li><strong>${escapeHtml(e.title)}</strong> — ${escapeHtml(e.day)} • ${escapeHtml(e.time_display || '')} • ${escapeHtml(e.venue)}</li>`).join('');
   const teamsHtml = input.teamNames.length ? `<p><b>Team:</b> ${input.teamNames.map(escapeHtml).join(', ')}</p>` : '';
-  return `<!doctype html><html><body style="margin:0;background:#030905;color:#fff;font-family:Arial,sans-serif;padding:24px"><div style="max-width:620px;margin:auto;background:#06120a;border:1px solid #00ff66;border-radius:16px;padding:28px"><div style="color:#00ff66;font-weight:800;letter-spacing:2px">IGNITEX 2026</div><h1>Registration Approved</h1><p>Hello ${escapeHtml(input.name)}, your registration has been approved.</p><div style="background:#020a04;border:1px dashed #00ff66;border-radius:12px;padding:18px"><p><b>Registration:</b> ${escapeHtml(input.registrationNumber)}</p><p><b>Verification code:</b></p><div style="font-size:24px;font-weight:900;letter-spacing:3px;color:#00ff66">${escapeHtml(input.code)}</div><p><b>Amount:</b> ₹${input.amount}</p>${teamsHtml}<h3>Events</h3><ul>${eventsHtml}</ul><img src="${input.qrUrl}" width="220" height="220" alt="Verification QR" style="display:block;margin:20px auto;background:#fff;padding:8px;border-radius:10px"/></div><p style="color:#aaa">Present this QR or verification code at the event verification desk.</p></div></body></html>`;
+  return `<!doctype html><html><body style="margin:0;background:#030905;color:#fff;font-family:Arial,sans-serif;padding:24px"><div style="max-width:620px;margin:auto;background:#06120a;border:1px solid #00ff66;border-radius:16px;padding:28px"><div style="color:#00ff66;font-weight:800;letter-spacing:2px">IGNITEX 2026</div><h1>Registration Approved</h1><p>Hello ${escapeHtml(input.name)}, your registration has been approved.</p><div style="background:#020a04;border:1px dashed #00ff66;border-radius:12px;padding:18px"><p><b>Registration ID:</b></p><div style="font-size:24px;font-weight:900;letter-spacing:3px;color:#00ff66">${escapeHtml(input.registrationNumber)}</div><p><b>Amount:</b> ₹${input.amount}</p>${teamsHtml}<h3>Events</h3><ul>${eventsHtml}</ul><img src="${input.qrUrl}" width="220" height="220" alt="Registration QR" style="display:block;margin:20px auto;background:#fff;padding:8px;border-radius:10px"/></div><p style="color:#aaa">Present this QR or your Registration ID at the event verification desk.</p></div></body></html>`;
 }
 
-async function sendApprovalEmail(client: SupabaseClient, registrationId: string, code: string): Promise<{ success: boolean; messageId?: string; error?: string }> {
+async function sendApprovalEmail(client: SupabaseClient, registrationId: string): Promise<{ success: boolean; messageId?: string; error?: string }> {
   if (!resend || !RESEND_FROM_EMAIL) return { success: false, error: 'RESEND_API_KEY or RESEND_FROM_EMAIL is missing.' };
   const aggregate = await getRegistrationAggregate(client, registrationId);
   const recipient = aggregate.reg.participants?.email;
   if (!recipient) return { success: false, error: 'Participant email not found.' };
   const verifyUrl = `${APP_URL}/verify?token=${encodeURIComponent(aggregate.reg.verification_qr_token)}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(verifyUrl)}`;
-  const html = buildApprovalEmail({ name: aggregate.reg.participants.full_name, registrationNumber: aggregate.reg.registration_number, code, events: aggregate.events, teamNames: aggregate.teams.map((t: any) => t.team_name), amount: Number(aggregate.reg.payment_amount || 0), qrUrl });
+  const html = buildApprovalEmail({ name: aggregate.reg.participants.full_name, registrationNumber: aggregate.reg.registration_number, events: aggregate.events, teamNames: aggregate.teams.map((t: any) => t.team_name), amount: Number(aggregate.reg.payment_amount || 0), qrUrl });
   const result = await resend.emails.send({
     from: RESEND_FROM_EMAIL,
     to: recipient,
@@ -629,12 +616,11 @@ app.post('/api/admin/approve-registration', async (req, res) => {
       return;
     }
     if (existing.status !== 'PENDING') { res.status(409).json({ success: false, error: { code: 'INVALID_STATUS', message: `Registration is ${existing.status}.` } }); return; }
-    const code = generateVerificationCode();
-    const qrToken = generateQrToken();
-    const { error: updateError } = await client.from('registrations').update({ status: 'APPROVED', payment_status: 'VERIFIED', approved_at: new Date().toISOString(), verification_code: code, verification_qr_token: qrToken }).eq('id', id);
+    const registrationNumber = existing.registration_number;
+    const { error: updateError } = await client.from('registrations').update({ status: 'APPROVED', payment_status: 'VERIFIED', approved_at: new Date().toISOString(), verification_code: registrationNumber, verification_qr_token: registrationNumber }).eq('id', id);
     if (updateError) throw updateError;
-    const email = await sendApprovalEmail(client, id, code);
-    res.json({ success: true, data: { message: email.success ? 'Registration approved and email sent.' : `Registration approved, but email failed: ${email.error}`, registration_id: id, verification_code: code, email_sent: email.success } });
+    const email = await sendApprovalEmail(client, id);
+    res.json({ success: true, data: { message: email.success ? 'Registration approved and email sent.' : `Registration approved, but email failed: ${email.error}`, registration_id: id, verification_code: registrationNumber, email_sent: email.success } });
   } catch (error: any) {
     res.status(500).json({ success: false, error: { code: 'APPROVAL_FAILED', message: error.message } });
   }
@@ -660,7 +646,7 @@ app.post('/api/admin/resend-email', async (req, res) => {
     const { data: reg, error } = await client.from('registrations').select('*').eq('id', id).single();
     if (error || !reg) { res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Registration not found.' } }); return; }
     if (!reg.verification_code || !reg.verification_qr_token) { res.status(409).json({ success: false, error: { code: 'NOT_APPROVED', message: 'Approve the registration before sending the pass.' } }); return; }
-    const result = await sendApprovalEmail(client, id, reg.verification_code);
+    const result = await sendApprovalEmail(client, id);
     if (!result.success) { res.status(502).json({ success: false, error: { code: 'EMAIL_FAILED', message: result.error } }); return; }
     res.json({ success: true, data: { message: 'Pass email resent successfully.' } });
   } catch (error: any) { res.status(500).json({ success: false, error: { code: 'RESEND_FAILED', message: error.message } }); }
@@ -682,10 +668,9 @@ app.post('/api/attendance/verify', async (req, res) => {
       }
     } catch { /* raw token */ }
 
+    const normalizedToken = token.toUpperCase();
     let query = client.from('registrations').select('*').limit(1);
-    if (token.toUpperCase().startsWith('IGX-')) query = query.eq('registration_number', token.toUpperCase());
-    else if (token.toUpperCase().startsWith('IGN-')) query = query.eq('verification_code', token.toUpperCase());
-    else query = query.eq('verification_qr_token', token);
+    query = query.eq('registration_number', normalizedToken);
 
     const { data: reg, error } = await query.maybeSingle();
     if (error || !reg) { res.json({ valid: false, status: 'INVALID', message: 'Invalid QR pass or verification token.' }); return; }
@@ -709,34 +694,22 @@ app.post('/api/attendance/verify', async (req, res) => {
       return;
     }
 
-    const checkinTime = new Date().toISOString();
-    const { data: updated, error: updateError } = await client
-      .from('registrations')
-      .update({ status: 'CHECKED_IN', verified_at: checkinTime, verified_by: safeString(req.body.staff_id) || null })
-      .eq('id', reg.id)
-      .eq('status', 'APPROVED')
-      .select('id')
-      .maybeSingle();
-    if (updateError) throw updateError;
-    if (!updated) { res.json({ valid: true, status: 'ALREADY_CHECKED_IN', message: 'This participant was checked in by another staff member.', registration_number: reg.registration_number, participant, events, team, checked_in: true }); return; }
-
-    await client.from('campus_checkins').upsert({
-      registration_id: reg.id,
-      registration_number: reg.registration_number,
-      participant_id: reg.participant_id,
-      checked_in_at: checkinTime,
-      checked_in_by: safeString(req.body.staff_id) || null,
-      checked_in_by_email: safeString(req.body.staff_email) || null,
-      verification_method: 'QR_SCAN',
-    }, { onConflict: 'registration_id' });
-
-    await client.from('admin_audit_logs').insert({
-      admin_id: safeString(req.body.staff_id) || null,
-      admin_email: safeString(req.body.staff_email) || 'admin@ignitex.edu',
-      action: 'REGISTRATION_CHECKED_IN',
-      registration_id: reg.id,
-      metadata: { checkin_time: checkinTime, verification_method: 'QR_SCAN' },
+    const { data: checkinResult, error: checkinError } = await client.rpc('check_in_registration', {
+      p_registration_id: reg.id,
+      p_staff_id: safeString(req.body.staff_id) || null,
+      p_staff_email: safeString(req.body.staff_email) || 'admin@ignitex.edu',
     });
+    if (checkinError) throw checkinError;
+
+    if (checkinResult?.status === 'ALREADY_CHECKED_IN') {
+      res.json({ valid: true, status: 'ALREADY_CHECKED_IN', message: `Already checked in at ${checkinResult.checked_in_at || 'earlier'}.`, registration_number: reg.registration_number, participant, events, team, checked_in: true });
+      return;
+    }
+
+    if (checkinResult?.status !== 'CHECKED_IN') {
+      res.json({ valid: false, status: checkinResult?.status || 'ERROR', message: checkinResult?.message || 'Check-in failed.', registration_number: reg.registration_number, participant, events, team, checked_in: false });
+      return;
+    }
 
     res.json({ valid: true, status: 'APPROVED', message: `Checked in successfully. Welcome ${aggregate.reg.participants.full_name}!`, registration_number: reg.registration_number, participant, events, team, checked_in: true });
   } catch (error: any) { res.status(500).json({ valid: false, status: 'ERROR', message: error.message }); }

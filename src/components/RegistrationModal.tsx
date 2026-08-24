@@ -690,7 +690,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                 Your payment reference (<strong className="text-amber-300 font-mono">{completedRegistration.transactionId}</strong>) and registration details have been submitted to the IgniteX Command Team.
               </p>
               <p className="text-[11px] text-emerald-300">
-                ⚡ Once the admin approves your registration, your official entry pass with a <strong>unique alphanumeric verification code</strong> and <strong>gate QR code</strong> will be generated and dispatched directly to <strong className="text-white">{completedRegistration.userEmail}</strong>.
+                ⚡ Once the admin approves your registration, your official entry pass with a <strong>unique IGX-XXXX Registration ID</strong> and <strong>gate QR code</strong> will be generated and dispatched directly to <strong className="text-white">{completedRegistration.userEmail}</strong>.
               </p>
             </div>
 

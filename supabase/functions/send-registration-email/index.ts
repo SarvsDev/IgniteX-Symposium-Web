@@ -100,12 +100,12 @@ serve(async (req: Request) => {
     
     <div style="background-color: #020703; border: 1px dashed #00ff66; border-radius: 8px; padding: 15px; margin: 20px 0;">
       <p style="margin: 4px 0;"><strong>Registration ID:</strong> <span style="color: #00ff66;">${reg.registration_number}</span></p>
-      <p style="margin: 4px 0;"><strong>Verification Code:</strong> <span style="color: #f59e0b; font-size: 16px; font-weight: bold;">${verificationCode}</span></p>
+      
       <p style="margin: 4px 0;"><strong>Status:</strong> ${reg.status}</p>
       <p style="margin: 4px 0;"><strong>Events:</strong> ${eventTitles}</p>
     </div>
 
-    <p style="font-size: 12px; color: #a3a3a3;">Present this verification code at the entry gate.</p>
+    <p style="font-size: 12px; color: #a3a3a3;">Present this QR pass or Registration ID at the entry gate.</p>
   </div>
 </body>
 </html>

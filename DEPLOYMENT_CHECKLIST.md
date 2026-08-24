@@ -1,20 +1,23 @@
-# Deployment checklist
+# IgniteX 2026 — Deployment Checklist
 
-- [ ] Run all Supabase migrations.
-- [ ] Confirm `events` contains the seeded event rows.
-- [ ] Confirm Storage bucket `payment-proofs` exists and is private.
-- [ ] Set server `SUPABASE_URL`.
-- [ ] Set server `SUPABASE_SERVICE_ROLE_KEY`.
-- [ ] Set `RESEND_API_KEY`.
-- [ ] Set a verified `RESEND_FROM_EMAIL`.
-- [ ] Set a strong `ADMIN_SECRET_KEY`.
-- [ ] Set `APP_URL` to the deployed public URL.
-- [ ] Restart/redeploy after changing environment variables.
-- [ ] Test `/api/health`.
-- [ ] Submit an individual registration.
-- [ ] Submit a team registration.
-- [ ] Submit a multi-event registration.
-- [ ] Approve a registration from Admin.
-- [ ] Confirm the approval email arrives.
-- [ ] Verify the code/QR once.
-- [ ] Verify the same code again and confirm `ALREADY_CHECKED_IN`.
+- [ ] Create/select a fresh Supabase project.
+- [ ] Open Supabase SQL Editor.
+- [ ] Run `supabase/schema.sql` once from top to bottom.
+- [ ] Confirm the `payment-proofs` bucket exists.
+- [ ] Configure `.env` from `.env.example`.
+- [ ] Set `SUPABASE_URL`.
+- [ ] Set `SUPABASE_SERVICE_ROLE_KEY`.
+- [ ] Set `ADMIN_SECRET_KEY`.
+- [ ] Set `APP_URL`.
+- [ ] Configure Resend if approval emails are required.
+- [ ] Install dependencies with `npm install`.
+- [ ] Run `npm run lint`.
+- [ ] Run `npm run build`.
+- [ ] Start with `npm run dev` or deploy the production build.
+- [ ] Test a new registration and payment-proof upload.
+- [ ] Approve it and confirm the email contains only `IGX-XXXX` plus the QR.
+- [ ] Scan the QR once and confirm verification.
+- [ ] Press **CHECK-IN PARTICIPANT**.
+- [ ] Confirm the admin table changes from `NOT YET` to `CHECKED IN`.
+- [ ] Scan the same QR again and confirm `ALREADY_CHECKED_IN`.
+- [ ] Confirm the event's `checked_in_count` increases only once.
