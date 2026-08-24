@@ -49,6 +49,7 @@ export interface SymposiumEvent {
   time: string;
   venue: string;
   teamSize: string;
+  minTeamSize: number;
   maxTeamSize: number;
   entryFee: number;
   prizePool: string;

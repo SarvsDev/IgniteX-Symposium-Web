@@ -214,12 +214,30 @@ export function MultiEventRegisterPage({
       return;
     }
 
-    // Verify team events have squad names filled
+    // Validate every team event before the user reaches payment. The database and
+    // frontend use the same min/max team constraints, so invalid squads never
+    // reach the payment/submit step.
     for (const ev of selectedEvents) {
       if (ev.maxTeamSize > 1) {
         const t = teamDetails[ev.id];
         if (!t?.teamName?.trim()) {
           setErrorMessage(`Please specify a Team / Squad Name for '${ev.title}'.`);
+          soundFx.playAlert();
+          return;
+        }
+
+        const uniqueNames = new Set(
+          [name.trim(), ...(t.teamMembers || [])]
+            .map((member) => member.trim().toLowerCase())
+            .filter(Boolean)
+        );
+        const minMembers = ev.minTeamSize ?? 2;
+        const maxMembers = ev.maxTeamSize;
+
+        if (uniqueNames.size < minMembers || uniqueNames.size > maxMembers) {
+          setErrorMessage(
+            `${ev.title} requires ${minMembers}-${maxMembers} unique members. Please complete the teammate fields before continuing to payment.`
+          );
           soundFx.playAlert();
           return;
         }
@@ -955,7 +973,7 @@ export function MultiEventRegisterPage({
                             {teamEvent.title} ({teamEvent.teamSize})
                           </span>
                           <span className="text-[10px] font-mono text-purple-400 uppercase">
-                            Max Squad: {squadSize} Members
+                            Team Size: {teamEvent.minTeamSize ?? 2}–{squadSize} Members
                           </span>
                         </div>
 

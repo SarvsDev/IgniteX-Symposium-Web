@@ -579,7 +579,7 @@ app.get('/api/admin/stats', async (req, res) => {
 });
 
 function buildApprovalEmail(input: { name: string; registrationNumber: string; events: any[]; teamNames: string[]; amount: number; qrUrl: string }) {
-  const eventsHtml = input.events.map((e) => `<li><strong>${escapeHtml(e.title)}</strong> — ${escapeHtml(e.day)} • ${escapeHtml(e.time_display || '')} • ${escapeHtml(e.venue)}</li>`).join('');
+  const eventsHtml = input.events.map((e) => `<li><strong>${escapeHtml(e.title)}</strong></li>`).join('');
   const teamsHtml = input.teamNames.length ? `<p><b>Team:</b> ${input.teamNames.map(escapeHtml).join(', ')}</p>` : '';
   return `<!doctype html><html><body style="margin:0;background:#030905;color:#fff;font-family:Arial,sans-serif;padding:24px"><div style="max-width:620px;margin:auto;background:#06120a;border:1px solid #00ff66;border-radius:16px;padding:28px"><div style="color:#00ff66;font-weight:800;letter-spacing:2px">IGNITEX 2026</div><h1>Registration Approved</h1><p>Hello ${escapeHtml(input.name)}, your registration has been approved.</p><div style="background:#020a04;border:1px dashed #00ff66;border-radius:12px;padding:18px"><p><b>Registration ID:</b></p><div style="font-size:24px;font-weight:900;letter-spacing:3px;color:#00ff66">${escapeHtml(input.registrationNumber)}</div><p><b>Amount:</b> ₹${input.amount}</p>${teamsHtml}<h3>Events</h3><ul>${eventsHtml}</ul><img src="${input.qrUrl}" width="220" height="220" alt="Registration QR" style="display:block;margin:20px auto;background:#fff;padding:8px;border-radius:10px"/></div><p style="color:#aaa">Present this QR or your Registration ID at the event verification desk.</p></div></body></html>`;
 }

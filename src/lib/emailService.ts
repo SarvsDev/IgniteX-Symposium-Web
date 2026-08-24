@@ -133,14 +133,6 @@ export async function generateEventPassHTML(data: EmailPassData): Promise<string
                         <td align="right" style="color: #ffffff; font-weight: bold;">${data.eventTitle}</td>
                       </tr>
                       <tr style="border-bottom: 1px solid #14381e;">
-                        <td style="color: #a3a3a3;">DATE &amp; TIME:</td>
-                        <td align="right" style="color: #ffffff;">${data.eventDay || 'Day 1'} • ${data.eventTime || '10:00 AM'}</td>
-                      </tr>
-                      <tr style="border-bottom: 1px solid #14381e;">
-                        <td style="color: #a3a3a3;">VENUE:</td>
-                        <td align="right" style="color: #ffffff;">${data.eventVenue || 'Main Campus'}</td>
-                      </tr>
-                      <tr style="border-bottom: 1px solid #14381e;">
                         <td style="color: #a3a3a3;">COLLEGE / INSTITUTION:</td>
                         <td align="right" style="color: #ffffff;">${data.userCollege || 'Participant College'}</td>
                       </tr>

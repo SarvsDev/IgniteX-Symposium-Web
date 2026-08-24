@@ -48,3 +48,13 @@ The database function `check_in_registration()` locks the registration row and m
 ## 6. Important
 
 Do not run the old migration files from previous versions. This project intentionally contains one clean schema instead of incremental patches.
+
+
+## Current team constraints
+- Crack The Code: 2–2
+- PosterXpo: 2–3
+- Zero: The Final Key: 2–4
+- Operation Bermuda Survive: 4–4
+- Memergency: 1–1 (solo)
+
+Use only this complete schema after dropping the old application tables. No patch migration is required.
