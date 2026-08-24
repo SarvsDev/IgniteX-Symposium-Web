@@ -482,7 +482,7 @@ INSERT INTO events (
     '01:00:00',
     '10:00 AM - 01:00 PM',
     'Campus Open Grounds & Auditorium Area',
-    300.00,
+    500.00,
     '1st, 2nd & 3rd Cash Prizes + Merit Certificates',
     100,
     0,

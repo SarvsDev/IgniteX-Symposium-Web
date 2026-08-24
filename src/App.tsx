@@ -15,7 +15,6 @@ import { HeroSection } from './components/HeroSection';
 import { EventsPage } from './components/EventsPage';
 import { EventCard } from './components/EventCard';
 import { EventDetailModal } from './components/EventDetailModal';
-import { RegistrationModal } from './components/RegistrationModal';
 import { TicketPassModal } from './components/TicketPassModal';
 import { AdminDashboard } from './components/AdminDashboard';
 import { ScheduleTimeline } from './components/ScheduleTimeline';
@@ -51,7 +50,7 @@ export default function App() {
 
   // Modals
   const [selectedEventDetails, setSelectedEventDetails] = useState<SymposiumEvent | null>(null);
-  const [selectedRegisterEvent, setSelectedRegisterEvent] = useState<SymposiumEvent | null>(null);
+  const [initialRegisterEventId, setInitialRegisterEventId] = useState<string | null>(null);
   const [showTicketWallet, setShowTicketWallet] = useState(false);
   const [showAdminPortal, setShowAdminPortal] = useState(false);
   const [showParticipantDetailsModal, setShowParticipantDetailsModal] = useState(false);
@@ -63,6 +62,17 @@ export default function App() {
       const hash = window.location.hash.toLowerCase();
       if (path === '/admin' || path === '/admin/' || hash === '#admin') {
         setShowAdminPortal(true);
+        return;
+      }
+
+      // Every registration URL opens the unified multi-event registration portal.
+      // Optional event selection is supported through /register/<event-id> or ?event=<event-id>.
+      if (path === '/register' || path === '/register/' || path.startsWith('/register/')) {
+        const pathEventId = decodeURIComponent(path.replace(/^\/register\/?/, '')).trim();
+        const queryEventId = new URLSearchParams(window.location.search).get('event')?.trim() || '';
+        setInitialRegisterEventId(queryEventId || pathEventId || null);
+        setSelectedEventDetails(null);
+        setActiveSection('register');
       }
     };
 
@@ -80,6 +90,14 @@ export default function App() {
     return () => window.removeEventListener('storage', syncFromStorage);
   }, []);
 
+  const openMultiEventRegistration = (event?: SymposiumEvent) => {
+    soundFx.playClick();
+    setSelectedEventDetails(null);
+    setInitialRegisterEventId(event?.id || null);
+    setActiveSection('register');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem('ignitex_local_user');
@@ -87,7 +105,6 @@ export default function App() {
 
   const handleRegistrationSuccess = (newReg: Registration) => {
     setUserRegistrations((prev) => [newReg, ...prev.filter((r) => r.id !== newReg.id)]);
-    setSelectedRegisterEvent(null);
   };
 
   const handleBatchRegistrationSuccess = (newRegs: Registration[]) => {
@@ -186,7 +203,7 @@ export default function App() {
               <ScheduleTimeline
                 events={events}
                 onSelectEvent={(e) => setSelectedEventDetails(e)}
-                onRegisterEvent={(e) => setSelectedRegisterEvent(e)}
+                onRegisterEvent={openMultiEventRegistration}
               />
             </section>
 
@@ -221,7 +238,7 @@ export default function App() {
                 : 'all'
             }
             onSelectEvent={(e) => setSelectedEventDetails(e)}
-            onQuickRegister={(e) => setSelectedRegisterEvent(e)}
+            onQuickRegister={openMultiEventRegistration}
           />
         )}
 
@@ -241,7 +258,7 @@ export default function App() {
             <ScheduleTimeline
               events={events}
               onSelectEvent={(e) => setSelectedEventDetails(e)}
-              onRegisterEvent={(e) => setSelectedRegisterEvent(e)}
+              onRegisterEvent={openMultiEventRegistration}
             />
           </section>
         )}
@@ -268,6 +285,7 @@ export default function App() {
           <MultiEventRegisterPage
             events={events}
             user={user}
+            initialEventId={initialRegisterEventId}
             onRegistrationSuccess={handleBatchRegistrationSuccess}
             onViewTicketPass={() => setShowTicketWallet(true)}
           />
@@ -279,17 +297,7 @@ export default function App() {
       <EventDetailModal
         event={selectedEventDetails}
         onClose={() => setSelectedEventDetails(null)}
-        onRegister={(e) => {
-          setSelectedEventDetails(null);
-          setSelectedRegisterEvent(e);
-        }}
-      />
-
-      <RegistrationModal
-        event={selectedRegisterEvent}
-        user={user}
-        onClose={() => setSelectedRegisterEvent(null)}
-        onSuccess={handleRegistrationSuccess}
+        onRegister={openMultiEventRegistration}
       />
 
       {showTicketWallet && (

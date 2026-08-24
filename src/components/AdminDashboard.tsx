@@ -433,11 +433,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-6 bg-black/90 backdrop-blur-md animate-fadeIn">
-      <div className="relative w-full max-w-6xl max-h-[92vh] overflow-y-auto rounded-2xl bg-[#030a05] border border-emerald-800 shadow-2xl p-4 sm:p-6 text-left space-y-6">
+    <div className="admin-dashboard-overlay fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-6 bg-black/90 backdrop-blur-md animate-fadeIn">
+      <div className="admin-dashboard-shell relative w-full max-w-[1500px] max-h-[94vh] overflow-y-auto rounded-2xl lg:rounded-3xl bg-[#030a05]/95 border border-emerald-800/90 shadow-[0_25px_100px_rgba(0,0,0,0.65),0_0_45px_rgba(16,185,129,0.08)] p-4 sm:p-5 lg:p-7 text-left space-y-5 lg:space-y-6">
         
         {/* Top Control Bar */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-emerald-900 pb-4">
+        <div className="admin-topbar flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-emerald-900/80 pb-4">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-amber-950/80 border border-amber-500/50 text-amber-400 shadow-[0_0_15px_rgba(234,179,8,0.2)]">
               <Crown className="w-6 h-6" />
@@ -498,7 +498,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex items-center gap-2 border-b border-emerald-900 pb-3 font-mono text-xs overflow-x-auto">
+        <div className="admin-tabs flex items-center gap-2 border-b border-emerald-900/80 pb-3 font-mono text-xs overflow-x-auto">
           {[
             { id: 'analytics', label: 'Analytics Overview', icon: BarChart2 },
             { id: 'participants', label: `Registrations (${registrations.length})`, icon: Users },
@@ -528,7 +528,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
         {/* KPI Strip */}
         {stats && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="admin-kpi-grid grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="p-3.5 rounded-xl bg-[#06120a] border border-emerald-900">
               <span className="text-[10px] font-mono text-emerald-500/80 block mb-0.5">TOTAL REGISTRATIONS</span>
               <div className="text-xl font-mono font-bold text-white">{stats.totalRegistrations}</div>
@@ -540,7 +540,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             <div className="p-3.5 rounded-xl bg-[#06120a] border border-emerald-900">
               <span className="text-[10px] font-mono text-emerald-500/80 block mb-0.5">TOTAL REVENUE</span>
               <div className="text-xl font-mono font-bold text-emerald-400">₹{stats.totalRevenue}</div>
-              <div className="text-[10px] font-mono text-emerald-500/80 mt-1">Via Verified UPI / QR</div>
+              <div className="text-[10px] font-mono text-emerald-500/80 mt-1">Via Verified Bank Transfer</div>
             </div>
 
             <div className="p-3.5 rounded-xl bg-[#06120a] border border-emerald-900">
@@ -624,19 +624,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 <h3 className="text-xs font-mono font-bold text-emerald-400 uppercase">EVENT REGISTRATION COUNTS</h3>
                 <p className="text-[10px] text-neutral-500 font-mono mt-1">Every registered event contributes exactly +1 to its event counter.</p>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-[11px] font-mono">
+              <div className="admin-table-shell overflow-auto">
+                <table className="responsive-admin-table admin-count-table w-full text-left text-[11px] font-mono">
                   <thead className="bg-[#020703] text-emerald-500 uppercase">
                     <tr><th className="p-3">Event</th><th className="p-3">Registered</th><th className="p-3">Approved</th><th className="p-3">Checked In</th><th className="p-3">Capacity</th></tr>
                   </thead>
                   <tbody className="divide-y divide-emerald-950">
                     {eventCounts.map((row) => (
                       <tr key={row.event_id} className="hover:bg-[#06150a]">
-                        <td className="p-3 text-white font-bold">{row.events?.title || row.event_id}</td>
-                        <td className="p-3 text-amber-400 font-bold">{row.registered_count}</td>
-                        <td className="p-3 text-emerald-300">{row.approved_count}</td>
-                        <td className="p-3 text-emerald-400">{row.checked_in_count}</td>
-                        <td className="p-3 text-neutral-400">{row.events?.max_capacity ?? '—'}</td>
+                        <td data-label="Event" className="p-3 text-white font-bold">{row.events?.title || row.event_id}</td>
+                        <td data-label="Registered" className="p-3 text-amber-400 font-bold">{row.registered_count}</td>
+                        <td data-label="Approved" className="p-3 text-emerald-300">{row.approved_count}</td>
+                        <td data-label="Checked In" className="p-3 text-emerald-400">{row.checked_in_count}</td>
+                        <td data-label="Capacity" className="p-3 text-neutral-400">{row.events?.max_capacity ?? '—'}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -657,19 +657,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 </div>
                 <span className="text-[10px] font-mono text-amber-400">{participantEventRows.length} EVENT REGISTRATIONS</span>
               </div>
-              <div className="max-h-64 overflow-auto">
-                <table className="w-full text-left text-[11px] font-mono">
+              <div className="admin-report-table-shell max-h-80 overflow-auto">
+                <table className="responsive-admin-table admin-report-table w-full text-left text-[11px] font-mono">
                   <thead className="sticky top-0 bg-[#020703] text-emerald-500 uppercase">
                     <tr><th className="p-3">IGX ID</th><th className="p-3">Participant Name</th><th className="p-3">Event Name</th><th className="p-3">Team / Members</th><th className="p-3">Status</th></tr>
                   </thead>
                   <tbody className="divide-y divide-emerald-950">
                     {participantEventRows.map((row, index) => (
                       <tr key={`${row.registration_number}-${row.event_name}-${index}`} className="hover:bg-[#06150a]">
-                        <td className="p-3 text-amber-400 font-bold">{row.registration_number}</td>
-                        <td className="p-3 text-white font-bold">{row.participant_name}</td>
-                        <td className="p-3 text-emerald-300">{row.event_name}</td>
-                        <td className="p-3 min-w-[220px]">{row.team_name ? <><div className="text-white font-bold">{row.team_name}</div><div className="text-[10px] text-emerald-300 mt-1">{(row.team_members || []).map((m, i) => <div key={`${row.registration_number}-${i}`}>• {m}</div>)}</div></> : <span className="text-neutral-500">SOLO</span>}</td>
-                        <td className="p-3 text-neutral-400">{row.registration_status}</td>
+                        <td data-label="IGX ID" className="p-3 text-amber-400 font-bold">{row.registration_number}</td>
+                        <td data-label="Participant" className="p-3 text-white font-bold">{row.participant_name}</td>
+                        <td data-label="Event" className="p-3 text-emerald-300">{row.event_name}</td>
+                        <td data-label="Team / Members" className="p-3 min-w-[220px]">{row.team_name ? <><div className="text-white font-bold">{row.team_name}</div><div className="text-[10px] text-emerald-300 mt-1">{(row.team_members || []).map((m, i) => <div key={`${row.registration_number}-${i}`}>• {m}</div>)}</div></> : <span className="text-neutral-500">SOLO</span>}</td>
+                        <td data-label="Status" className="p-3 text-neutral-400">{row.registration_status}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -686,7 +686,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             )}
 
             {/* Search & Filter Bar */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="admin-filter-bar flex flex-col sm:flex-row items-center justify-between gap-3 p-3 rounded-2xl bg-[#06120a]/70 border border-emerald-900/70">
               <div className="relative w-full sm:w-72">
                 <Search className="w-4 h-4 text-emerald-600 absolute left-3 top-2.5" />
                 <input
@@ -725,8 +725,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             </div>
 
             {/* Table */}
-            <div className="overflow-x-auto rounded-xl border border-emerald-900">
-              <table className="w-full text-left font-mono text-xs">
+            <div className="admin-table-shell overflow-auto rounded-2xl border border-emerald-900/80 bg-[#020703]/50 shadow-inner shadow-emerald-950/20">
+              <table className="responsive-admin-table admin-registration-table w-full text-left font-mono text-xs">
                 <thead className="bg-[#06120a] text-emerald-400 border-b border-emerald-900">
                   <tr>
                     <th className="p-3">Registration ID</th>
@@ -745,10 +745,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                     const isPaid = reg.paymentStatus === 'SUCCESS' || reg.paymentStatus === 'PAID';
                     return (
                       <tr key={reg.id} className="hover:bg-[#06150a] transition-colors">
-                        <td className="p-3">
+                        <td data-label="Registration ID" className="p-3">
                           <div className="font-bold text-amber-400">{reg.registrationNumber || reg.ticketHash}</div>
                         </td>
-                        <td className="p-3">
+                        <td data-label="Participant" className="p-3">
                           <div className="font-bold text-white flex items-center gap-1.5">
                             <span>{reg.userName}</span>
                             <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
@@ -758,11 +758,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                           <div className="text-[10px] text-emerald-500/80">{reg.userEmail}</div>
                           <div className="text-[10px] text-amber-400 font-mono">{reg.userPhone}</div>
                         </td>
-                        <td className="p-3">
+                        <td data-label="Event" className="p-3">
                           <div className="truncate max-w-[150px] font-bold">{reg.eventTitle}</div>
                           <div className="text-[10px] text-emerald-500/80">{reg.eventDay}</div>
                         </td>
-                        <td className="p-3 min-w-[210px]">
+                        <td data-label="Team / Members" className="p-3 min-w-[210px]">
                           {reg.teams && reg.teams.length > 0 ? (
                             <div className="space-y-2">
                               {reg.teams.map((team, teamIndex) => (
@@ -781,12 +781,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                             <div className="text-[10px] text-neutral-500">SOLO REGISTRATION</div>
                           )}
                         </td>
-                        <td className="p-3">
+                        <td data-label="College" className="p-3">
                           <div className="truncate max-w-[130px]">{reg.userCollege}</div>
                           <div className="text-[10px] text-amber-400 font-semibold">{reg.collegeYear || '3rd Year'}</div>
                         </td>
-                        <td className="p-3 font-bold text-emerald-400">₹{reg.amountPaid}</td>
-                        <td className="p-3">
+                        <td data-label="Amount" className="p-3 font-bold text-emerald-400">₹{reg.amountPaid}</td>
+                        <td data-label="Status" className="p-3">
                           <span
                             className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
                               isPaid
@@ -799,7 +799,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                             {isPaid ? '✓ APPROVED' : reg.paymentStatus}
                           </span>
                         </td>
-                        <td className="p-3">
+                        <td data-label="Attended" className="p-3">
                           <span
                             className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] ${
                               reg.attended
@@ -817,8 +817,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                             )}
                           </span>
                         </td>
-                        <td className="p-3 text-right">
-                          <div className="flex items-center justify-end gap-1.5">
+                        <td data-label="Actions" className="p-3 text-right">
+                          <div className="admin-action-buttons flex items-center justify-end gap-1.5">
                             {!isPaid && (
                               <button
                                 type="button"

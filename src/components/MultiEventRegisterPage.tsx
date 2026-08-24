@@ -20,7 +20,6 @@ import {
   Trophy,
   Layers,
   ChevronRight,
-  Lock,
   FileSpreadsheet,
   Upload,
   Image as ImageIcon,
@@ -35,7 +34,7 @@ import { QRAttachZone } from './QRAttachZone';
 interface MultiEventRegisterPageProps {
   events: SymposiumEvent[];
   user: User | null;
-  onOpenAuth?: () => void;
+  initialEventId?: string | null;
   onRegistrationSuccess: (registrations: Registration[]) => void;
   onViewTicketPass: () => void;
 }
@@ -43,7 +42,7 @@ interface MultiEventRegisterPageProps {
 export function MultiEventRegisterPage({
   events,
   user,
-  onOpenAuth,
+  initialEventId,
   onRegistrationSuccess,
   onViewTicketPass
 }: MultiEventRegisterPageProps) {
@@ -86,6 +85,16 @@ export function MultiEventRegisterPage({
       if (user.collegeYear) setCollegeYear(user.collegeYear);
     }
   }, [user]);
+
+  // If registration was opened from a specific event card/URL, preselect that event
+  // while keeping the user inside the unified multi-event registration portal.
+  useEffect(() => {
+    if (!initialEventId) return;
+    const exists = events.some((event) => event.id === initialEventId);
+    if (exists) {
+      setSelectedEventIds((prev) => prev.includes(initialEventId) ? prev : [initialEventId, ...prev]);
+    }
+  }, [initialEventId, events]);
 
   // Keep team/squad form state isolated per event.
   const handleTeamNameChange = (eventId: string, value: string) => {
@@ -1038,19 +1047,6 @@ export function MultiEventRegisterPage({
                   ENTER PARTICIPANT INFO
                 </h3>
               </div>
-
-              {!user && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    soundFx.playClick();
-                    onOpenAuth();
-                  }}
-                  className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-mono text-[10px] font-bold hover:bg-emerald-500/30 transition-colors"
-                >
-                  Quick Google Sign-In
-                </button>
-              )}
             </div>
 
             {/* Error banner */}

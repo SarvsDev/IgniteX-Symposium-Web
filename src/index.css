@@ -149,3 +149,503 @@ html {
   background: #22c55e;
 }
 
+
+/* --------------------------------------------------------------------------
+   Mobile-first responsive layer
+   -------------------------------------------------------------------------- */
+@media (max-width: 640px) {
+  html, body, #root {
+    width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  body {
+    font-size: 14px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  button, input, select, textarea {
+    min-height: 42px;
+  }
+
+  input, select, textarea {
+    max-width: 100%;
+    font-size: 16px !important;
+  }
+
+  /* Main navigation */
+  header.sticky > div:first-child {
+    height: 64px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  header.sticky > div:first-child > div:first-child {
+    gap: 8px !important;
+  }
+
+  header.sticky > div:first-child > div:first-child > div:last-child {
+    display: none;
+  }
+
+  header.sticky .lg\:hidden {
+    overflow-x: auto;
+    justify-content: flex-start !important;
+    scrollbar-width: none;
+    white-space: nowrap;
+  }
+
+  header.sticky .lg\:hidden::-webkit-scrollbar {
+    display: none;
+  }
+
+  header.sticky .lg\:hidden button {
+    flex: 0 0 auto;
+    min-height: 36px;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  /* Generic content containers */
+  main {
+    padding-top: 8px !important;
+  }
+
+  main section,
+  main > div {
+    max-width: 100% !important;
+  }
+
+  /* Registration / event cards */
+  .rounded-3xl, .rounded-2xl {
+    max-width: 100%;
+  }
+
+  /* Admin portal */
+  .admin-dashboard-overlay {
+    padding: 0 !important;
+    align-items: stretch !important;
+  }
+
+  .admin-dashboard-shell {
+    width: 100vw !important;
+    max-width: none !important;
+    height: 100dvh !important;
+    max-height: none !important;
+    border-radius: 0 !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    padding: 12px !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+  }
+
+  .admin-dashboard-shell .overflow-x-auto {
+    overflow-x: visible !important;
+  }
+
+  .admin-dashboard-shell .grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .admin-dashboard-shell .text-xl {
+    font-size: 16px !important;
+  }
+
+  .admin-dashboard-shell .max-h-64 {
+    max-height: none !important;
+  }
+
+  .admin-dashboard-shell .sticky {
+    position: static !important;
+  }
+
+  /* Convert admin data tables to compact cards instead of horizontal scrolling. */
+  .responsive-admin-table,
+  .responsive-admin-table thead,
+  .responsive-admin-table tbody,
+  .responsive-admin-table tr,
+  .responsive-admin-table th,
+  .responsive-admin-table td {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .responsive-admin-table thead {
+    display: none;
+  }
+
+  .responsive-admin-table tbody {
+    display: grid;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .responsive-admin-table tr {
+    border: 1px solid rgba(16, 185, 129, 0.28);
+    border-radius: 12px;
+    background: rgba(2, 7, 3, 0.92);
+    overflow: hidden;
+  }
+
+  .responsive-admin-table td {
+    min-width: 0 !important;
+    max-width: none !important;
+    padding: 9px 10px !important;
+    border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+    text-align: left !important;
+    overflow-wrap: anywhere;
+  }
+
+  .responsive-admin-table td:last-child {
+    border-bottom: 0;
+  }
+
+  .responsive-admin-table td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 4px;
+    color: rgba(52, 211, 153, 0.7);
+    font-size: 9px;
+    line-height: 1.1;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  .responsive-admin-table td[data-label="Team / Members"] {
+    min-width: 0 !important;
+  }
+
+  .responsive-admin-table td[data-label="Actions"] .admin-action-buttons {
+    justify-content: flex-start !important;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .responsive-admin-table td[data-label="Actions"] button {
+    min-height: 36px;
+  }
+
+  .responsive-admin-table .truncate {
+    max-width: none !important;
+    white-space: normal !important;
+  }
+
+  /* Admin search/filter controls */
+  .admin-dashboard-shell .flex.flex-col.sm\:flex-row {
+    align-items: stretch !important;
+  }
+
+  .admin-dashboard-shell select,
+  .admin-dashboard-shell input[type="text"] {
+    width: 100% !important;
+  }
+
+  /* QR scanner */
+  .admin-dashboard-shell video {
+    min-height: 220px;
+    object-fit: cover;
+  }
+
+  /* Modals and cards */
+  [role="dialog"] {
+    max-width: calc(100vw - 16px) !important;
+    max-height: calc(100dvh - 16px) !important;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 380px) {
+  header.sticky .lg\:hidden button span {
+    font-size: 9px;
+  }
+
+  .admin-dashboard-shell {
+    padding: 8px !important;
+  }
+
+  .admin-dashboard-shell .p-4 {
+    padding: 10px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Admin dashboard — desktop + mobile refinement
+   -------------------------------------------------------------------------- */
+.admin-dashboard-shell {
+  scrollbar-gutter: stable;
+}
+
+.admin-dashboard-shell::-webkit-scrollbar {
+  width: 8px;
+}
+
+.admin-dashboard-shell::-webkit-scrollbar-track {
+  background: rgba(2, 7, 3, 0.7);
+}
+
+.admin-dashboard-shell::-webkit-scrollbar-thumb {
+  background: rgba(16, 185, 129, 0.45);
+  border: 2px solid rgba(2, 7, 3, 0.7);
+}
+
+.admin-topbar {
+  position: sticky;
+  top: -1px;
+  z-index: 20;
+  background: linear-gradient(to bottom, rgba(3, 10, 5, 0.98), rgba(3, 10, 5, 0.92));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.admin-tabs {
+  position: sticky;
+  top: 76px;
+  z-index: 19;
+  background: rgba(3, 10, 5, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  scrollbar-width: none;
+}
+
+.admin-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.admin-kpi-grid > div {
+  min-height: 96px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(6, 18, 10, 0.98), rgba(3, 10, 5, 0.94));
+  border-color: rgba(16, 185, 129, 0.28);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.025), 0 12px 30px rgba(0,0,0,0.18);
+}
+
+.admin-table-shell,
+.admin-report-table-shell {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(16,185,129,.5) rgba(2,7,3,.8);
+}
+
+.admin-registration-table {
+  min-width: 1120px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.admin-registration-table thead,
+.admin-count-table thead,
+.admin-report-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.admin-registration-table thead th,
+.admin-count-table thead th,
+.admin-report-table thead th {
+  background: rgba(2, 7, 3, 0.98);
+  border-bottom: 1px solid rgba(16, 185, 129, 0.25);
+  white-space: nowrap;
+  font-size: 10px;
+  letter-spacing: .06em;
+}
+
+.admin-registration-table tbody tr {
+  transition: background .18s ease, box-shadow .18s ease;
+}
+
+.admin-registration-table tbody tr:hover {
+  background: rgba(16, 185, 129, 0.045);
+  box-shadow: inset 3px 0 0 rgba(16,185,129,.5);
+}
+
+.admin-registration-table td {
+  vertical-align: top;
+  border-bottom: 1px solid rgba(16, 185, 129, 0.09);
+}
+
+.admin-registration-table td[data-label="Team / Members"] {
+  min-width: 230px;
+}
+
+.admin-registration-table td[data-label="Actions"] {
+  min-width: 205px;
+}
+
+.admin-registration-table .admin-action-buttons button {
+  min-height: 34px;
+  white-space: nowrap;
+}
+
+.admin-filter-bar input,
+.admin-filter-bar select {
+  min-height: 40px;
+}
+
+@media (min-width: 1024px) {
+  .admin-dashboard-overlay {
+    padding: 24px !important;
+  }
+
+  .admin-dashboard-shell {
+    width: min(1500px, calc(100vw - 48px));
+  }
+}
+
+@media (max-width: 767px) {
+  .admin-dashboard-shell {
+    padding: 10px !important;
+    border-radius: 0 !important;
+    width: 100vw !important;
+    max-width: none !important;
+  }
+
+  .admin-topbar {
+    position: relative;
+    top: auto;
+  }
+
+  .admin-tabs {
+    position: relative;
+    top: auto;
+    padding-bottom: 8px;
+  }
+
+  .admin-tabs button {
+    min-height: 40px;
+    padding: 9px 11px !important;
+  }
+
+  .admin-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .admin-kpi-grid > div {
+    min-height: 88px;
+    padding: 11px !important;
+  }
+
+  .admin-filter-bar {
+    padding: 10px !important;
+    border-radius: 16px;
+  }
+
+  .admin-filter-bar > div,
+  .admin-filter-bar .relative {
+    width: 100% !important;
+  }
+
+  .admin-filter-bar select {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .admin-table-shell {
+    overflow: visible !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .admin-registration-table,
+  .admin-report-table,
+  .admin-count-table {
+    min-width: 0 !important;
+  }
+
+  .responsive-admin-table tbody {
+    gap: 12px;
+    padding: 8px 0;
+  }
+
+  .responsive-admin-table tr {
+    border-radius: 16px;
+    background: linear-gradient(145deg, rgba(5,16,9,.98), rgba(2,7,3,.98));
+    border-color: rgba(16,185,129,.28);
+    box-shadow: 0 12px 28px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.025);
+  }
+
+  .responsive-admin-table td {
+    padding: 10px 12px !important;
+    border-bottom-color: rgba(16,185,129,.09);
+  }
+
+  .responsive-admin-table td::before {
+    color: rgba(52,211,153,.58);
+    font-size: 8px;
+    margin-bottom: 3px;
+  }
+
+  .admin-registration-table td[data-label="Registration ID"] {
+    background: rgba(16,185,129,.035);
+  }
+
+  .admin-registration-table td[data-label="Registration ID"]::after {
+    content: 'REGISTRATION';
+    float: right;
+    color: rgba(234,179,8,.65);
+    font-size: 8px;
+    letter-spacing: .08em;
+  }
+
+  .admin-registration-table td[data-label="Actions"] .admin-action-buttons {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+
+  .admin-registration-table td[data-label="Actions"] .admin-action-buttons button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .admin-registration-table td[data-label="Actions"] .admin-action-buttons button:last-child {
+    grid-column: span 2;
+  }
+
+  .admin-report-table-shell {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .admin-report-table-shell .responsive-admin-table td[data-label="Team / Members"] {
+    min-width: 0 !important;
+  }
+
+  .admin-count-table td {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .admin-count-table td::before {
+    margin: 0 !important;
+    flex: 0 0 auto;
+  }
+
+  .admin-count-table td > * {
+    text-align: right;
+  }
+}
+
+@media (max-width: 420px) {
+  .admin-kpi-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .admin-dashboard-shell .text-xl {
+    font-size: 15px !important;
+  }
+
+  .admin-dashboard-shell .admin-topbar p {
+    max-width: 240px;
+    line-height: 1.4;
+  }
+}
