@@ -111,7 +111,7 @@ export const saveManualGoogleSheetUrl = async (
 // Standard event headers for individual event tabs
 export const EVENT_SPECIFIC_HEADERS = [
   'Registered At',
-  'Ticket ID / Hash',
+  'Registration ID',
   'Receipt Number',
   'Participant Name',
   'Email Address',
@@ -132,7 +132,7 @@ export const EVENT_SPECIFIC_HEADERS = [
 
 export const MASTER_REGISTRATION_HEADERS = [
   'Registered At',
-  'Ticket ID / Hash',
+  'Registration ID',
   'Receipt Number',
   'Participant Name',
   'Email Address',

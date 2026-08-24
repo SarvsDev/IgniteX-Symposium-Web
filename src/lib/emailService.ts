@@ -121,7 +121,7 @@ export async function generateEventPassHTML(data: EmailPassData): Promise<string
                   <td>
                     <table role="presentation" width="100%" cellspacing="0" cellpadding="6" style="font-size: 12px; border-collapse: collapse;">
                       <tr style="border-bottom: 1px solid #14381e;">
-                        <td style="color: #a3a3a3;">REGISTRATION ID / HASH:</td>
+                        <td style="color: #a3a3a3;">REGISTRATION ID:</td>
                         <td align="right" style="color: #00ff66; font-weight: bold; font-size: 14px; letter-spacing: 1px;">${data.ticketHash}</td>
                       </tr>
                       <tr style="border-bottom: 1px solid #14381e;">

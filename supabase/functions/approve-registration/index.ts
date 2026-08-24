@@ -1,7 +1,7 @@
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.42.0';
 import { corsHeaders } from '../_shared/cors.ts';
-import { generateVerificationCode, generateOpaqueQRToken, hashVerificationCode } from '../_shared/security.ts';
+import { generateVerificationCode, generateOpaqueQRToken } from '../_shared/security.ts';
 
 serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
@@ -84,7 +84,6 @@ serve(async (req: Request) => {
     // 3. Generate secure tokens
     const verificationCode = generateVerificationCode('ZHS');
     const verificationQrToken = generateOpaqueQRToken();
-    const verificationCodeHash = await hashVerificationCode(verificationCode);
     const approvalTimestamp = new Date().toISOString();
 
     // 4. Update Registration
@@ -96,7 +95,6 @@ serve(async (req: Request) => {
         approved_at: approvalTimestamp,
         approved_by: admin_id || null,
         verification_code: verificationCode,
-        verification_code_hash: verificationCodeHash,
         verification_qr_token: verificationQrToken,
       })
       .eq('id', reg.id)

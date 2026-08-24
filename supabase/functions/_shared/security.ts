@@ -29,14 +29,3 @@ export function generateOpaqueQRToken(): string {
   crypto.getRandomValues(array);
   return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
-
-/**
- * Hash verification code with SHA-256 for secure verification checks
- */
-export async function hashVerificationCode(code: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(code.trim().toUpperCase());
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-}

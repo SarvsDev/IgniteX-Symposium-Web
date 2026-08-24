@@ -111,10 +111,6 @@ function generateQrToken(): string {
   return crypto.randomBytes(32).toString('hex');
 }
 
-function hashVerificationCode(code: string): string {
-  return crypto.createHash('sha256').update(code.toUpperCase()).digest('hex');
-}
-
 function toLegacyRegistration(row: any, events: any[], teams: any[] = [], members: any[] = []): Registration {
   const firstEvent = events[0] || {};
   const team = teams[0];
@@ -549,8 +545,7 @@ app.post('/api/admin/approve-registration', async (req, res) => {
     if (existing.status !== 'PENDING') { res.status(409).json({ success: false, error: { code: 'INVALID_STATUS', message: `Registration is ${existing.status}.` } }); return; }
     const code = generateVerificationCode();
     const qrToken = generateQrToken();
-    const hash = hashVerificationCode(code);
-    const { error: updateError } = await client.from('registrations').update({ status: 'APPROVED', payment_status: 'VERIFIED', approved_at: new Date().toISOString(), verification_code: code, verification_code_hash: hash, verification_qr_token: qrToken }).eq('id', id);
+    const { error: updateError } = await client.from('registrations').update({ status: 'APPROVED', payment_status: 'VERIFIED', approved_at: new Date().toISOString(), verification_code: code, verification_qr_token: qrToken }).eq('id', id);
     if (updateError) throw updateError;
     const email = await sendApprovalEmail(client, id, code);
     res.json({ success: true, data: { message: email.success ? 'Registration approved and email sent.' : `Registration approved, but email failed: ${email.error}`, registration_id: id, verification_code: code, email_sent: email.success } });

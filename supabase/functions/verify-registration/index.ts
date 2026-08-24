@@ -1,7 +1,6 @@
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.42.0';
 import { corsHeaders } from '../_shared/cors.ts';
-import { hashVerificationCode } from '../_shared/security.ts';
 
 serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
@@ -49,12 +48,6 @@ serve(async (req: Request) => {
       );
     }
 
-    // Hash the code if searching by code
-    let codeHash = null;
-    if (searchCode) {
-      codeHash = await hashVerificationCode(searchCode);
-    }
-
     // 1. Query registration
     let query = supabase
       .from('registrations')
@@ -64,7 +57,6 @@ serve(async (req: Request) => {
         status,
         payment_status,
         verification_code,
-        verification_code_hash,
         verification_qr_token,
         verified_at,
         receipt_number,
@@ -94,7 +86,7 @@ serve(async (req: Request) => {
     if (searchQrToken) {
       query = query.or(`verification_qr_token.eq."${searchQrToken}",verification_code.eq."${searchQrToken}",registration_number.eq."${searchQrToken}"`);
     } else if (searchCode) {
-      query = query.or(`verification_code.eq."${searchCode}",verification_code_hash.eq."${codeHash}",registration_number.eq."${searchCode}"`);
+      query = query.or(`verification_code.eq."${searchCode}",registration_number.eq."${searchCode}"`);
     }
 
     const { data: records, error: queryErr } = await query;

@@ -3,13 +3,19 @@
 -- ============================================================================
 
 -- 1. Human-readable public registration ID: IGX-XXXX (4 alphanumeric chars).
+--    Verification code and QR token are intentionally stored as PLAINTEXT.
 CREATE OR REPLACE FUNCTION generate_next_registration_number()
 RETURNS TEXT AS $$
 DECLARE
   candidate TEXT;
+  chars TEXT := '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  i INTEGER;
 BEGIN
   LOOP
-    candidate := 'IGX-' || upper(substr(encode(gen_random_bytes(3), 'hex'), 1, 4));
+    candidate := 'IGX-';
+    FOR i IN 1..4 LOOP
+      candidate := candidate || substr(chars, 1 + floor(random() * length(chars))::INTEGER, 1);
+    END LOOP;
     EXIT WHEN NOT EXISTS (
       SELECT 1 FROM registrations WHERE registration_number = candidate
     );
@@ -17,6 +23,10 @@ BEGIN
   RETURN candidate;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- No encrypted/hashed registration verification fields are used.
+-- Keep verification_code and verification_qr_token directly readable in the DB.
+ALTER TABLE registrations DROP COLUMN IF EXISTS verification_code_hash;
 
 -- Convert legacy IDs once so existing registrations also follow IGX-XXXX.
 DO $$

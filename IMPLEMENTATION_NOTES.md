@@ -36,6 +36,10 @@ The scanner also accepts the raw QR token, the approval QR URL, the verification
 
 ## Important
 
-The reporting table is plaintext by design for admin reporting. Payment screenshots, transaction information, QR secrets, and verification hashes are not copied into that table.
+The reporting table is plaintext by design for admin reporting. Payment screenshots, transaction information, QR secrets, and verification plaintextes are not copied into that table.
 
 If the Supabase Edge Functions are deployed separately, redeploy the updated `register` and `verify-registration` functions after applying migration 004.
+
+## Database transparency
+
+Participant names, event names, registration IDs, verification codes, and QR tokens are stored directly as plaintext columns. No verification-code hash/encryption layer is used. PostgreSQL RLS still controls which application roles can read the tables; RLS is access control, not encryption.

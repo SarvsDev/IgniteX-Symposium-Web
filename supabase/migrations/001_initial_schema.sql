@@ -133,7 +133,6 @@ CREATE TABLE IF NOT EXISTS registrations (
     approved_by UUID,
     rejection_reason TEXT,
     verification_code TEXT UNIQUE,
-    verification_code_hash TEXT,
     verification_qr_token TEXT UNIQUE,
     verified_at TIMESTAMPTZ,
     verified_by UUID,
@@ -285,7 +284,7 @@ DECLARE
     next_val BIGINT;
 BEGIN
     next_val := nextval('symposium_reg_seq');
-    RETURN 'REG-2026-' || LPAD(next_val::TEXT, 4, '0');
+    RETURN 'IGX-' || LPAD(next_val::TEXT, 4, '0');
 END;
 $$ LANGUAGE plpgsql;
 
