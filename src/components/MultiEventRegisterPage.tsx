@@ -87,6 +87,30 @@ export function MultiEventRegisterPage({
     }
   }, [user]);
 
+  // Keep team/squad form state isolated per event.
+  const handleTeamNameChange = (eventId: string, value: string) => {
+    setTeamDetails((prev) => ({
+      ...prev,
+      [eventId]: {
+        teamName: value,
+        teamMembers: prev[eventId]?.teamMembers?.length ? prev[eventId].teamMembers : [name || ''],
+      },
+    }));
+  };
+
+  const handleTeamMemberChange = (eventId: string, memberIndex: number, value: string) => {
+    setTeamDetails((prev) => {
+      const current = prev[eventId] || { teamName: '', teamMembers: [name || ''] };
+      const members = [...(current.teamMembers || [])];
+      while (members.length <= memberIndex) members.push('');
+      members[memberIndex] = value;
+      return {
+        ...prev,
+        [eventId]: { ...current, teamMembers: members },
+      };
+    });
+  };
+
   // Individual 4 solo events for combo pass
   const soloEventIds = ['tech-profile-architect', 'tech-neural-rush', 'nontech-prompt-perfect', 'nontech-memergency'];
 
@@ -131,6 +155,24 @@ export function MultiEventRegisterPage({
     soundFx.playClick();
     setSelectedEventIds([]);
   };
+
+  // Filter the event list shown on the registration page.
+  // This was previously missing, which caused a ReferenceError and a blank React page.
+  const filteredEvents = events.filter((event) => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    const matchesCategory =
+      categoryFilter === 'all' ||
+      (categoryFilter === 'selected'
+        ? selectedEventIds.includes(event.id)
+        : event.category === categoryFilter);
+    const matchesSearch =
+      !normalizedQuery ||
+      event.title.toLowerCase().includes(normalizedQuery) ||
+      event.tagline.toLowerCase().includes(normalizedQuery) ||
+      event.shortDescription.toLowerCase().includes(normalizedQuery);
+
+    return matchesCategory && matchesSearch;
+  });
 
   // Calculate pricing & combo discounts
   const selectedEvents = events.filter(e => selectedEventIds.includes(e.id));
@@ -620,7 +662,7 @@ export function MultiEventRegisterPage({
                     setPaymentScreenshot('');
                     setScreenshotFileName(null);
                   }}
-                  label="ATTACH PAYMENT QR SCREENSHOT / PROOF"
+                  label="ATTACH PAYMENT SCREENSHOT / RECEIPT"
                   required={true}
                 />
               </div>
@@ -944,7 +986,7 @@ export function MultiEventRegisterPage({
                               <input
                                 type="text"
                                 placeholder={idx === 0 ? (name || 'Participant Name') : `Teammate ${idx + 1} Name`}
-                                value={info.teamMembers?.[idx] || (idx === 0 ? name : '')}
+                                value={info.teamMembers?.[idx] ?? (idx === 0 ? name : '')}
                                 onChange={(e) => handleTeamMemberChange(teamEvent.id, idx, e.target.value)}
                                 className="flex-1 px-3 py-1.5 rounded-lg bg-black border border-neutral-700 text-white font-mono text-xs focus:border-emerald-500 focus:outline-none"
                               />

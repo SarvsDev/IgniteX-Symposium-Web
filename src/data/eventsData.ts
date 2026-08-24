@@ -733,7 +733,7 @@ export const EVENTS_DATA: SymposiumEvent[] = [
   },
 
   // =========================================================================
-  // 7. MEMERGENCY / MEME MACHINE (NON-TECHNICAL - INDIVIDUAL OR DUO)
+  // 7. MEMERGENCY / MEME MACHINE (NON-TECHNICAL - INDIVIDUAL)
   // =========================================================================
   {
     id: 'nontech-memergency',
@@ -743,15 +743,15 @@ export const EVENTS_DATA: SymposiumEvent[] = [
     day: 'Day 2',
     time: '02:00 PM - 04:30 PM',
     venue: 'Lab (Computer Lab)',
-    teamSize: 'Individual or Team (Max 2)',
-    maxTeamSize: 2,
+    teamSize: 'Individual (1 Member)',
+    maxTeamSize: 1,
     entryFee: 150,
     prizePool: '1st, 2nd & 3rd Cash Prizes + Winner Certificates',
     shortDescription: 'Test your wit, humor, and design sense across Meme Prompt Blitz, Live Meme Battle, and Rapid Meme Showdown.',
     fullDescription: 'Memergency (Meme Machine) is a technical meme creation event conducted as part of IgniteX\'26. The event tests participants\' creativity, humor, technical knowledge, and ability to translate tech, coding, and campus-life concepts into original, relatable memes under timed rounds.',
     rules: [
-      'Memergency can be attempted individually or in teams of a maximum of 2 members.',
-      'Each participant/team may register only once. Switching team members after registration is not permitted.',
+      'Memergency is an individual-only event. Each participant registers and competes alone.',
+      'Each participant may register only once. Team or duo registration is not permitted.',
       'All memes must be technology, coding, campus-life, or symposium-themed as specified for each round.',
       'Memes must be original creations. Reusing or re-posting existing viral memes with only text changes is not permitted.',
       'Memes must NOT contain content that is offensive, communal, political, discriminatory, vulgar, or defamatory.',

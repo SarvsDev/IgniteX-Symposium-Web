@@ -46,7 +46,7 @@ export default function App() {
   const [userRegistrations, setUserRegistrations] = useState<Registration[]>(() => {
     return getStoredRegistrations();
   });
-  const [activeSection, setActiveSection] = useState<'home' | 'tech-events' | 'non-tech-events' | 'events' | 'timeline' | 'protocol' | 'register'>('register');
+  const [activeSection, setActiveSection] = useState<'home' | 'tech-events' | 'non-tech-events' | 'events' | 'timeline' | 'protocol' | 'register'>('home');
   const [soundEnabled, setSoundEnabled] = useState(true);
 
   // Modals
