@@ -1,0 +1,113 @@
+{
+  "entities": {
+    "users": {
+      "title": "Users",
+      "description": "Registered users and administrators",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string" },
+        "department": { "type": "string" },
+        "collegeYear": { "type": "string" },
+        "college": { "type": "string" },
+        "phone": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["email"]
+    },
+    "participants": {
+      "title": "Participants",
+      "description": "Symposium participants index",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "college": { "type": "string" },
+        "department": { "type": "string" },
+        "collegeYear": { "type": "string" },
+        "totalPaidRegistrations": { "type": "number" }
+      },
+      "required": ["email", "name"]
+    },
+    "registrations": {
+      "title": "Registrations",
+      "description": "Event ticket registrations and payment receipts",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "userName": { "type": "string" },
+        "userDepartment": { "type": "string" },
+        "collegeYear": { "type": "string" },
+        "eventId": { "type": "string" },
+        "eventTitle": { "type": "string" },
+        "paymentStatus": { "type": "string" },
+        "amountPaid": { "type": "number" },
+        "registeredAt": { "type": "string" }
+      },
+      "required": ["id", "userEmail", "eventId"]
+    },
+    "email_receipts": {
+      "title": "Email Receipts",
+      "description": "Dispatched email receipts and ticket credentials log",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "to": { "type": "string" },
+        "recipientName": { "type": "string" },
+        "eventTitle": { "type": "string" },
+        "ticketHash": { "type": "string" },
+        "receiptNumber": { "type": "string" },
+        "transactionId": { "type": "string" },
+        "amountPaid": { "type": "number" },
+        "paymentGateway": { "type": "string" },
+        "status": { "type": "string" },
+        "sentAt": { "type": "string" },
+        "htmlContent": { "type": "string" }
+      },
+      "required": ["id", "to", "receiptNumber", "ticketHash"]
+    },
+    "google_docs_sync": {
+      "title": "Google Docs Sync",
+      "description": "Sync entries formatted for Google Docs and Sheets ingestion",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "name": { "type": "string" },
+        "college": { "type": "string" },
+        "department": { "type": "string" },
+        "collegeYear": { "type": "string" },
+        "phone": { "type": "string" },
+        "formattedGoogleDocLine": { "type": "string" },
+        "syncedAt": { "type": "string" }
+      },
+      "required": ["email", "formattedGoogleDocLine"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/users" },
+      "description": "User profile collection"
+    },
+    "/participants/{email}": {
+      "schema": { "$ref": "#/entities/participants" },
+      "description": "Participant index collection"
+    },
+    "/registrations/{registrationId}": {
+      "schema": { "$ref": "#/entities/registrations" },
+      "description": "Event registrations and tickets"
+    },
+    "/email_receipts/{receiptId}": {
+      "schema": { "$ref": "#/entities/email_receipts" },
+      "description": "Email receipts and registration pass dispatches"
+    },
+    "/google_docs_sync/{email}": {
+      "schema": { "$ref": "#/entities/google_docs_sync" },
+      "description": "Google Docs sync logs"
+    }
+  }
+}

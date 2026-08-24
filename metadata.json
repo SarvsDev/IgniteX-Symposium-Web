@@ -1,0 +1,10 @@
+{
+  "name": "IgniteX 2026",
+  "description": "IgniteX 2026 national technical and non-technical symposium platform featuring secure registration, dynamic event pass generation, and real-time attendance verification.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
