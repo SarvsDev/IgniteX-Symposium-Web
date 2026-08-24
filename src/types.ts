@@ -97,6 +97,13 @@ export interface PaymentReceipt {
   status: 'PAID' | 'VERIFIED';
 }
 
+export interface RegistrationTeam {
+  eventTitle?: string;
+  eventId?: string;
+  teamName: string;
+  members: string[];
+}
+
 export interface Registration {
   id: string;
   ticketHash: string; // legacy UI field; contains the IGX-XXXX Registration ID
@@ -117,6 +124,7 @@ export interface Registration {
   eventVenue: string;
   teamName?: string;
   teamMembers?: string[];
+  teams?: RegistrationTeam[];
   amountPaid: number;
   paymentGateway: string;
   transactionId: string;

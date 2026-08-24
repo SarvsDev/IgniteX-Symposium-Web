@@ -62,6 +62,8 @@ export interface ParticipantEventRow {
   registration_number: string;
   participant_name: string;
   event_name: string;
+  team_name?: string;
+  team_members?: string[];
   registration_status: string;
   registered_at: string;
 }

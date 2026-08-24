@@ -101,7 +101,16 @@ function escapeHtml(value: unknown): string {
 function toLegacyRegistration(row: any, events: any[], teams: any[] = [], members: any[] = []): Registration {
   const firstEvent = events[0] || {};
   const team = teams[0];
-  const teamMembers = team ? members.filter((m) => m.team_id === team.id).map((m) => m.member_name) : undefined;
+  const teamDetails = teams.map((t: any) => {
+    const eventForTeam = events.find((e: any) => e.slug === t.event_id || e.id === t.event_id) || events[0] || {};
+    return {
+      eventTitle: eventForTeam.title || t.event_id || '',
+      eventId: eventForTeam.slug || eventForTeam.id || t.event_id || '',
+      teamName: t.team_name || '',
+      members: members.filter((m) => m.team_id === t.id).map((m) => m.member_name).filter(Boolean),
+    };
+  });
+  const teamMembers = team ? (teamDetails[0]?.members || []) : undefined;
   return {
     id: row.id,
     ticketHash: row.registration_number || '',
@@ -123,6 +132,7 @@ function toLegacyRegistration(row: any, events: any[], teams: any[] = [], member
     eventVenue: firstEvent.venue || 'Main Campus',
     teamName: team?.team_name,
     teamMembers,
+    teams: teamDetails,
     amountPaid: Number(row.payment_amount || 0),
     paymentGateway: row.payment_gateway || 'BANK_TRANSFER',
     transactionId: row.transaction_id || '',
@@ -720,11 +730,34 @@ app.get('/api/admin/participant-events', async (req, res) => {
   const client = requireSupabase(res); if (!client) return;
   try {
     const { data, error } = await client
-      .from('participant_event_registrations')
-      .select('registration_number,participant_name,event_name,registration_status,registered_at')
-      .order('registered_at', { ascending: false });
+      .from('registrations')
+      .select(`id,registration_number,status,created_at,participants(full_name),registration_events(events(id,slug,title)),teams(team_name,event_id,team_members(member_name))`)
+      .order('created_at', { ascending: false });
     if (error) throw error;
-    res.json({ success: true, rows: data || [] });
+    const rows: any[] = [];
+    for (const registration of data || []) {
+      const teamByEvent = new Map<string, { name: string; members: string[] }>();
+      for (const team of registration.teams || []) {
+        teamByEvent.set(team.event_id || '', {
+          name: team.team_name || '',
+          members: (team.team_members || []).map((m: any) => m.member_name).filter(Boolean),
+        });
+      }
+      for (const link of registration.registration_events || []) {
+        const eventName = link.events?.title || 'IgniteX Event';
+        const matchingTeam = [...teamByEvent.entries()].find(([eventId]) => eventId === link.events?.id || eventId === link.events?.slug)?.[1];
+        rows.push({
+          registration_number: registration.registration_number,
+          participant_name: registration.participants?.full_name || '',
+          event_name: eventName,
+          team_name: matchingTeam?.name || '',
+          team_members: matchingTeam?.members || [],
+          registration_status: registration.status,
+          registered_at: registration.created_at,
+        });
+      }
+    }
+    res.json({ success: true, rows });
   } catch (error: any) {
     res.status(500).json({ success: false, error: { code: 'PARTICIPANT_EVENT_REPORT_FAILED', message: error.message } });
   }
@@ -750,9 +783,9 @@ app.get('/api/admin/export', async (req, res) => {
   const client = requireSupabase(res); if (!client) return;
   try {
     const rows = await loadAdminRows(client);
-    const headers = ['Registration ID','Receipt','Participant','Email','Phone','College','Events','Team','Amount','Payment Status','Registration Status','Checked In','Registered At'];
+    const headers = ['Registration ID','Receipt','Participant','Email','Phone','College','Events','Team','Team Members','Amount','Payment Status','Registration Status','Checked In','Registered At'];
     const csvEscape = (v: any) => `"${String(v ?? '').replace(/"/g, '""')}"`;
-    const csv = [headers.join(','), ...rows.map((r) => [r.id,r.receiptNumber,r.userName,r.userEmail,r.userPhone,r.userCollege,r.eventTitle,r.teamName || '',r.amountPaid,r.paymentStatus,r.attended ? 'CHECKED_IN' : 'PENDING',r.attended ? 'YES' : 'NO',r.registeredAt].map(csvEscape).join(','))].join('\n');
+    const csv = [headers.join(','), ...rows.map((r) => [r.registrationNumber || r.ticketHash,r.receiptNumber,r.userName,r.userEmail,r.userPhone,r.userCollege,r.eventTitle,r.teamName || '',(r.teams || []).map((t: any) => `${t.teamName}: ${(t.members || []).join(' | ')}`).join(' || '),r.amountPaid,r.paymentStatus,r.attended ? 'CHECKED_IN' : 'PENDING',r.attended ? 'YES' : 'NO',r.registeredAt].map(csvEscape).join(','))].join('\n');
     res.setHeader('Content-Type','text/csv');
     res.setHeader('Content-Disposition',`attachment; filename="ignitex-registrations-${Date.now()}.csv"`);
     res.send(csv);

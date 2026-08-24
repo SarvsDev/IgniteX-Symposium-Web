@@ -653,14 +653,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
               <div className="p-4 border-b border-emerald-900 flex items-center justify-between">
                 <div>
                   <h3 className="text-xs font-mono font-bold text-emerald-400 uppercase">TRANSPARENT PARTICIPANT → EVENT REGISTER</h3>
-                  <p className="text-[10px] text-neutral-500 font-mono mt-1">Plain participant and event names for admin reporting. One row per event registration.</p>
+                  <p className="text-[10px] text-neutral-500 font-mono mt-1">Plain participant, event, team and member details for admin reporting. One row per event registration.</p>
                 </div>
                 <span className="text-[10px] font-mono text-amber-400">{participantEventRows.length} EVENT REGISTRATIONS</span>
               </div>
               <div className="max-h-64 overflow-auto">
                 <table className="w-full text-left text-[11px] font-mono">
                   <thead className="sticky top-0 bg-[#020703] text-emerald-500 uppercase">
-                    <tr><th className="p-3">IGX ID</th><th className="p-3">Participant Name</th><th className="p-3">Event Name</th><th className="p-3">Status</th></tr>
+                    <tr><th className="p-3">IGX ID</th><th className="p-3">Participant Name</th><th className="p-3">Event Name</th><th className="p-3">Team / Members</th><th className="p-3">Status</th></tr>
                   </thead>
                   <tbody className="divide-y divide-emerald-950">
                     {participantEventRows.map((row, index) => (
@@ -668,6 +668,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                         <td className="p-3 text-amber-400 font-bold">{row.registration_number}</td>
                         <td className="p-3 text-white font-bold">{row.participant_name}</td>
                         <td className="p-3 text-emerald-300">{row.event_name}</td>
+                        <td className="p-3 min-w-[220px]">{row.team_name ? <><div className="text-white font-bold">{row.team_name}</div><div className="text-[10px] text-emerald-300 mt-1">{(row.team_members || []).map((m, i) => <div key={`${row.registration_number}-${i}`}>• {m}</div>)}</div></> : <span className="text-neutral-500">SOLO</span>}</td>
                         <td className="p-3 text-neutral-400">{row.registration_status}</td>
                       </tr>
                     ))}
@@ -731,6 +732,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                     <th className="p-3">Registration ID</th>
                     <th className="p-3">Participant</th>
                     <th className="p-3">Event</th>
+                    <th className="p-3">Team / Members</th>
                     <th className="p-3">College</th>
                     <th className="p-3">Amount</th>
                     <th className="p-3">Status</th>
@@ -759,6 +761,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                         <td className="p-3">
                           <div className="truncate max-w-[150px] font-bold">{reg.eventTitle}</div>
                           <div className="text-[10px] text-emerald-500/80">{reg.eventDay}</div>
+                        </td>
+                        <td className="p-3 min-w-[210px]">
+                          {reg.teams && reg.teams.length > 0 ? (
+                            <div className="space-y-2">
+                              {reg.teams.map((team, teamIndex) => (
+                                <div key={`${reg.id}-team-${teamIndex}`} className="rounded-lg border border-emerald-900 bg-[#041008] p-2">
+                                  <div className="text-[10px] text-amber-400 font-bold uppercase">{team.eventTitle || 'Team Event'}</div>
+                                  <div className="text-white font-bold mt-0.5">{team.teamName || 'Unnamed Team'}</div>
+                                  <div className="text-[10px] text-emerald-300 mt-1 leading-4">
+                                    {(team.members || []).length > 0
+                                      ? team.members.map((member, memberIndex) => <div key={`${reg.id}-${teamIndex}-${memberIndex}`}>• {member}</div>)
+                                      : '• No member details'}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-[10px] text-neutral-500">SOLO REGISTRATION</div>
+                          )}
                         </td>
                         <td className="p-3">
                           <div className="truncate max-w-[130px]">{reg.userCollege}</div>
