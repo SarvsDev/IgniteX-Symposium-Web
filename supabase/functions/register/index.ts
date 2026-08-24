@@ -276,7 +276,7 @@ serve(async (req: Request) => {
         status: 'PENDING',
         payment_status: payment.transaction_id ? 'SUBMITTED' : 'PENDING',
         payment_amount: totalCalculatedAmount,
-        payment_gateway: payment.payment_gateway || 'UPI',
+        payment_gateway: payment.payment_gateway || 'BANK_TRANSFER',
         transaction_id: payment.transaction_id?.trim() || null,
         payment_screenshot_url: null,
         receipt_number: receiptNumber,

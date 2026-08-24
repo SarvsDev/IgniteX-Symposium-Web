@@ -8,7 +8,6 @@ import {
   User as UserIcon,
   Ticket,
   CreditCard,
-  QrCode,
   Sparkles,
   ArrowRight,
   ArrowLeft,
@@ -21,11 +20,9 @@ import {
   Trophy,
   Layers,
   ChevronRight,
-  ExternalLink,
   Lock,
   FileSpreadsheet,
   Upload,
-  Copy,
   Image as ImageIcon,
   FileText,
   ShieldCheck
@@ -67,19 +64,16 @@ export function MultiEventRegisterPage({
   // Team details for selected team events: { [eventId]: { teamName: '', teamMembers: ['', ''] } }
   const [teamDetails, setTeamDetails] = useState<Record<string, { teamName: string; teamMembers: string[] }>>({});
 
-  // Page Step State: 'selection' (Event & Details) -> 'payment' (Dedicated UPI Payment & Proof Page)
+  // Page Step State: 'selection' (Event & Details) -> 'payment' (Dedicated Bank Transfer Payment & Proof Page)
   const [step, setStep] = useState<'selection' | 'payment'>('selection');
 
   // Payment & Proof state
   const [transactionId, setTransactionId] = useState('');
   const [paymentScreenshot, setPaymentScreenshot] = useState<string>('');
   const [screenshotFileName, setScreenshotFileName] = useState<string | null>(null);
-  const [copiedUpi, setCopiedUpi] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [mintedPasses, setMintedPasses] = useState<Registration[] | null>(null);
-
-  const officialUpiId = 'sarveshv6413@okaxis';
 
   // Sync user profile when user changes
   useEffect(() => {
@@ -148,79 +142,6 @@ export function MultiEventRegisterPage({
   const comboDiscount = isEligibleForComboDiscount ? Math.max(0, rawTotalFee - 500) : 0;
   const finalPayableAmount = Math.max(0, rawTotalFee - comboDiscount);
 
-  const upiIntentUri = `upi://pay?pa=${officialUpiId}&pn=IgniteX%202026%20Symposium&am=${finalPayableAmount}&cu=INR&tn=IgniteX-MultiPass-${selectedEventIds.length}-Events`;
-
-  const handleCopyUpi = () => {
-    navigator.clipboard.writeText(officialUpiId);
-    setCopiedUpi(true);
-    soundFx.playClick();
-    setTimeout(() => setCopiedUpi(false), 2500);
-  };
-
-  const handleScreenshotFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 20 * 1024 * 1024) {
-        setErrorMessage('Screenshot file size exceeds 20MB. Please upload a smaller image.');
-        soundFx.playAlert();
-        return;
-      }
-      setScreenshotFileName(file.name);
-      try {
-        const compressedBase64 = await compressImageFile(file);
-        setPaymentScreenshot(compressedBase64);
-        soundFx.playClick();
-      } catch (err) {
-        console.warn('Fallback to standard file read:', err);
-        const reader = new FileReader();
-        reader.onload = () => {
-          const base64 = reader.result as string;
-          setPaymentScreenshot(base64);
-          soundFx.playClick();
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-  };
-
-  // Handle team info change
-  const handleTeamNameChange = (eventId: string, val: string) => {
-    setTeamDetails(prev => ({
-      ...prev,
-      [eventId]: {
-        teamName: val,
-        teamMembers: prev[eventId]?.teamMembers || [name || 'Captain']
-      }
-    }));
-  };
-
-  const handleTeamMemberChange = (eventId: string, memberIdx: number, val: string) => {
-    setTeamDetails(prev => {
-      const currentMembers = prev[eventId]?.teamMembers ? [...prev[eventId].teamMembers] : [name || 'Captain'];
-      currentMembers[memberIdx] = val;
-      return {
-        ...prev,
-        [eventId]: {
-          teamName: prev[eventId]?.teamName || '',
-          teamMembers: currentMembers
-        }
-      };
-    });
-  };
-
-  // Filtered event listing
-  const filteredEvents = events.filter(event => {
-    const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.shortDescription.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    if (!matchesSearch) return false;
-
-    if (categoryFilter === 'technical') return event.category === 'technical';
-    if (categoryFilter === 'non-technical') return event.category === 'non-technical';
-    if (categoryFilter === 'selected') return selectedEventIds.includes(event.id);
-    return true;
-  });
-
   // Validate Form & Redirect to Dedicated Payment Page
   const handleProceedToPayment = (e: React.FormEvent) => {
     e.preventDefault();
@@ -282,13 +203,13 @@ export function MultiEventRegisterPage({
     }
 
     if (!transactionId.trim()) {
-      setErrorMessage('TRANSACTION ID REQUIRED: Please enter the 12-digit UPI UTR / Transaction Reference Number.');
+      setErrorMessage('TRANSACTION ID REQUIRED: Please enter the bank transaction/reference number.');
       soundFx.playAlert();
       return;
     }
 
     if (!paymentScreenshot) {
-      setErrorMessage('PAYMENT SCREENSHOT REQUIRED: Please upload screenshot proof of your UPI payment.');
+      setErrorMessage('PAYMENT SCREENSHOT REQUIRED: Please upload screenshot proof of your bank transfer.');
       soundFx.playAlert();
       return;
     }
@@ -319,7 +240,7 @@ export function MultiEventRegisterPage({
         payment: {
           transaction_id: transactionId.trim(),
           payment_screenshot_url: paymentScreenshot,
-          payment_gateway: 'UPI',
+          payment_gateway: 'BANK_TRANSFER',
         },
       };
 
@@ -503,7 +424,7 @@ export function MultiEventRegisterPage({
             <span className="text-neutral-600">/</span>
             <span className="flex items-center gap-1.5 text-amber-400 font-bold px-2 py-0.5 rounded bg-amber-400/10 border border-amber-400/30">
               <Zap className="w-3.5 h-3.5 text-amber-400" />
-              <span>2. UPI Payment & Proof</span>
+              <span>2. Bank Transfer & Proof</span>
             </span>
           </div>
         </div>
@@ -515,10 +436,10 @@ export function MultiEventRegisterPage({
             <span>DEDICATED PAYMENT CHECKOUT // GOOGLE FORM RESPONSE DISPATCH</span>
           </div>
           <h1 className="text-2xl sm:text-4xl font-mono font-black text-white uppercase tracking-tight">
-            COMPLETE UPI PAYMENT
+            COMPLETE BANK TRANSFER
           </h1>
           <p className="text-xs sm:text-sm text-neutral-300 font-sans">
-            Scan the official UPI QR code or transfer to our VPA, enter your 12-digit UTR number, and upload the payment screenshot to immediately verify and mint your official IgniteX passes.
+            Transfer the exact payable amount to the bank account below, enter your bank transaction/reference number, and upload the payment receipt to submit your registration for admin verification.
           </p>
         </div>
 
@@ -637,67 +558,25 @@ export function MultiEventRegisterPage({
             </div>
           </div>
 
-          {/* RIGHT COLUMN: STEP 1 (UPI QR) + STEP 2 (TRANSACTION ID & SCREENSHOT PROOF) (7 cols) */}
+          {/* RIGHT COLUMN: BANK DETAILS + PAYMENT PROOF */}
           <div className="lg:col-span-7">
-            <form
-              onSubmit={handleSubmitBatchRegistration}
-              className="p-6 rounded-3xl bg-[#040f07] border-2 border-emerald-500/40 shadow-[0_0_35px_rgba(0,255,102,0.15)] space-y-6"
-            >
-              {/* STEP 1: SCAN & PAY VIA UPI */}
+            <form onSubmit={handleSubmitBatchRegistration} className="p-6 rounded-3xl bg-[#040f07] border-2 border-emerald-500/40 shadow-[0_0_35px_rgba(0,255,102,0.15)] space-y-6">
+              {/* STEP 1: BANK TRANSFER DETAILS */}
               <div className="p-5 rounded-2xl bg-[#031407] border border-emerald-600/80 shadow-lg space-y-4 font-mono">
                 <div className="flex items-center justify-between border-b border-emerald-900/80 pb-2.5">
-                  <span className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
-                    <QrCode className="w-4 h-4 text-emerald-400" />
-                    <span>STEP 1: SCAN QR & PAY VIA UPI</span>
-                  </span>
-                  <span className="text-xs font-black text-emerald-300 bg-emerald-950 px-2.5 py-0.5 rounded border border-emerald-700">
-                    AMOUNT: ₹{finalPayableAmount}
-                  </span>
+                  <span className="text-xs font-bold text-amber-400 flex items-center gap-1.5"><CreditCard className="w-4 h-4 text-emerald-400" /><span>STEP 1: COMPLETE BANK TRANSFER</span></span>
+                  <span className="text-xs font-black text-emerald-300 bg-emerald-950 px-2.5 py-0.5 rounded border border-emerald-700">AMOUNT: ₹{finalPayableAmount}</span>
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-                  <div className="sm:col-span-5 flex flex-col items-center justify-center p-3 rounded-2xl bg-white text-black text-center space-y-1.5 shadow-inner">
-                    <img
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(upiIntentUri)}&margin=1`}
-                      alt="Official UPI QR Code"
-                      className="w-36 h-36 rounded-lg object-contain mx-auto"
-                    />
-                    <span className="text-[10px] font-mono font-bold text-neutral-800">
-                      GPay • PhonePe • Paytm • BHIM
-                    </span>
-                  </div>
-
-                  <div className="sm:col-span-7 space-y-3 text-xs">
-                    <div>
-                      <span className="text-[10px] text-neutral-400 block">OFFICIAL UPI ID (VPA)</span>
-                      <div className="flex items-center gap-1.5 mt-1">
-                        <div className="p-2.5 rounded-xl bg-black border border-emerald-900 text-emerald-300 font-bold text-xs flex-1 truncate select-all">
-                          {officialUpiId}
-                        </div>
-                        <button
-                          type="button"
-                          onClick={handleCopyUpi}
-                          className="px-3 py-2.5 rounded-xl bg-emerald-950 border border-emerald-600 text-emerald-300 text-xs font-bold flex items-center gap-1 hover:bg-emerald-900 transition-all shrink-0"
-                        >
-                          {copiedUpi ? <Check className="w-3.5 h-3.5 text-amber-400" /> : <Copy className="w-3.5 h-3.5" />}
-                          <span>{copiedUpi ? 'Copied' : 'Copy'}</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    <a
-                      href={upiIntentUri}
-                      className="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-amber-500 text-black font-bold text-xs flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.02] transition-all text-center"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5 text-black" />
-                      <span>Open in UPI App (Mobile Device)</span>
-                    </a>
-
-                    <p className="text-[11px] text-neutral-400 font-sans leading-relaxed">
-                      After payment, take a screenshot and note down the 12-digit UPI reference / UTR number below.
-                    </p>
+                <div className="rounded-2xl bg-black/70 border border-emerald-900 p-4 space-y-3">
+                  <div className="text-[11px] text-emerald-400 font-bold uppercase tracking-wider">Payment Details</div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div className="p-3 rounded-xl bg-[#06130a] border border-emerald-900"><span className="text-[10px] text-neutral-500 block">BANK NAME</span><span className="text-white font-bold">INDIAN BANK</span></div>
+                    <div className="p-3 rounded-xl bg-[#06130a] border border-emerald-900"><span className="text-[10px] text-neutral-500 block">ACCOUNT NO</span><span className="text-emerald-300 font-bold select-all">7776750392</span></div>
+                    <div className="p-3 rounded-xl bg-[#06130a] border border-emerald-900"><span className="text-[10px] text-neutral-500 block">IFSC CODE</span><span className="text-emerald-300 font-bold select-all">IDIB000S201</span></div>
+                    <div className="p-3 rounded-xl bg-[#06130a] border border-emerald-900"><span className="text-[10px] text-neutral-500 block">TOTAL PAYABLE</span><span className="text-amber-400 font-bold">₹{finalPayableAmount}</span></div>
                   </div>
                 </div>
+                <p className="text-[11px] text-neutral-400 font-sans leading-relaxed">Transfer the exact amount shown above to the Indian Bank account. After payment, keep your bank transaction/reference number and upload the successful payment receipt below.</p>
               </div>
 
               {/* STEP 2: SUBMIT TRANSACTION ID & PAYMENT SCREENSHOT */}
@@ -715,13 +594,13 @@ export function MultiEventRegisterPage({
                 {/* Transaction ID / UTR Input */}
                 <div className="space-y-1.5">
                   <label className="text-[11px] text-emerald-400 font-bold flex items-center justify-between">
-                    <span>12-DIGIT UPI UTR / TRANSACTION ID *</span>
-                    <span className="text-[10px] text-neutral-400 font-normal">Found in payment receipt</span>
+                    <span>BANK TRANSACTION / REFERENCE ID *</span>
+                    <span className="text-[10px] text-neutral-400 font-normal">Found in bank receipt</span>
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. 423871920194 or UPI/4238719201"
+                    placeholder="Enter your bank transaction/reference number"
                     value={transactionId}
                     onChange={(e) => setTransactionId(e.target.value)}
                     className="w-full bg-black border border-emerald-700 rounded-xl px-4 py-2.5 text-white font-mono text-xs focus:outline-none focus:border-amber-400 transition-colors"
@@ -743,8 +622,6 @@ export function MultiEventRegisterPage({
                   }}
                   label="ATTACH PAYMENT QR SCREENSHOT / PROOF"
                   required={true}
-                  upiAmount={finalPayableAmount}
-                  upiId={officialUpiId}
                 />
               </div>
 

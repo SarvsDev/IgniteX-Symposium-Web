@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   X,
   CreditCard,
-  QrCode,
   ShieldCheck,
   Loader2,
   CheckCircle2,
@@ -24,8 +23,6 @@ import {
   Eye,
   RefreshCw,
   Upload,
-  Copy,
-  Check,
   Image as ImageIcon,
   FileSpreadsheet,
   AlertCircle,
@@ -68,14 +65,13 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
     member2: '',
     member3: '',
     member4: '',
-    paymentGateway: 'UPI_FORM_RESPONSE' as 'UPI_FORM_RESPONSE' | 'UPI',
+    paymentGateway: 'BANK_TRANSFER',
     transactionId: '',
     paymentScreenshot: '',
   });
 
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
   const [screenshotFileName, setScreenshotFileName] = useState<string | null>(null);
-  const [copiedUpi, setCopiedUpi] = useState(false);
   const [processingLog, setProcessingLog] = useState<string[]>([]);
   const [completedRegistration, setCompletedRegistration] = useState<Registration | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -83,16 +79,6 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
   const [emailPreviewHtml, setEmailPreviewHtml] = useState<string>('');
   const [resendingEmail, setResendingEmail] = useState(false);
   const [resendStatus, setResendStatus] = useState<string | null>(null);
-
-  const officialUpiId = 'sarveshv6413@okaxis';
-  const upiIntentUri = `upi://pay?pa=${officialUpiId}&pn=IgniteX%202026%20Symposium&am=${event.entryFee}&cu=INR&tn=IgniteX-${encodeURIComponent(event.title)}`;
-
-  const handleCopyUpi = () => {
-    navigator.clipboard.writeText(officialUpiId);
-    setCopiedUpi(true);
-    soundFx.playClick();
-    setTimeout(() => setCopiedUpi(false), 2500);
-  };
 
   const handleScreenshotFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -152,7 +138,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
 
     if (!formData.transactionId.trim()) {
       soundFx.playAlert();
-      setErrorMsg('TRANSACTION ID REQUIRED: Please enter the 12-digit UPI UTR / Transaction Reference Number from your payment receipt.');
+      setErrorMsg('TRANSACTION ID REQUIRED: Please enter the bank transaction/reference number from your payment receipt.');
       return;
     }
 
@@ -166,7 +152,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
     setErrorMsg(null);
 
     const logs = [
-      'Validating UPI Transaction UTR & payment proof...',
+      'Validating bank transfer reference & payment proof...',
       `Target Event: ${event.title} (Fee: ₹${event.entryFee})...`,
       `[AUTOVERIFIED] Minting verified IgniteX Quantum QR Pass...`,
       `Uploading payment proof to Supabase Storage...`
@@ -204,7 +190,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
           transaction_id: formData.transactionId.trim(),
           payment_screenshot_url: formData.paymentScreenshot || screenshotPreview || undefined,
           payment_screenshot_name: screenshotFileName || undefined,
-          payment_gateway: 'UPI',
+          payment_gateway: 'BANK_TRANSFER',
         },
       });
 
@@ -448,14 +434,14 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                 type="submit"
                 className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-green-600 to-amber-500 text-black font-mono text-xs font-extrabold transition-all shadow-[0_0_20px_rgba(16,185,129,0.4)]"
               >
-                <span>Proceed to UPI Payment Proof</span>
+                <span>Proceed to Bank Transfer Payment Proof</span>
                 <ArrowRight className="w-4 h-4 text-black" />
               </button>
             </div>
           </form>
         )}
 
-        {/* STEP 2: GOOGLE FORM UPI PAYMENT & PROOF RESPONSE */}
+        {/* STEP 2: BANK TRANSFER PAYMENT & PROOF RESPONSE */}
         {step === 'payment' && (
           <div className="space-y-5">
             {!user ? (
@@ -489,70 +475,29 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
               </div>
             )}
 
-            {/* UPI SCAN & PAY CARD */}
+            {/* BANK TRANSFER PAYMENT DETAILS */}
             <div className="p-4 rounded-2xl bg-[#041108] border border-emerald-600/60 shadow-lg space-y-4">
               <div className="flex items-center justify-between border-b border-emerald-900/80 pb-2">
                 <span className="text-xs font-mono font-bold text-amber-400 flex items-center gap-1.5">
-                  <QrCode className="w-4 h-4 text-emerald-400" />
-                  <span>STEP 1: SCAN QR & COMPLETE UPI PAYMENT</span>
+                  <CreditCard className="w-4 h-4 text-emerald-400" />
+                  <span>STEP 1: COMPLETE BANK TRANSFER</span>
                 </span>
                 <span className="text-xs font-mono font-black text-white bg-emerald-950 px-2 py-0.5 rounded border border-emerald-700">
                   ₹{event.entryFee}
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-                {/* QR Code Graphic with amount and dynamic UPI link */}
-                <div className="sm:col-span-5 flex flex-col items-center justify-center p-3 rounded-xl bg-white text-black text-center space-y-1">
-                  <img
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(upiIntentUri)}&margin=1`}
-                    alt="IgniteX Official UPI Payment QR"
-                    className="w-36 h-36 rounded-lg object-contain mx-auto"
-                  />
-                  <span className="text-[10px] font-mono font-bold text-neutral-800">
-                    Scan using GPay / PhonePe / Paytm
-                  </span>
-                </div>
-
-                {/* UPI Details & Intent Buttons */}
-                <div className="sm:col-span-7 space-y-2.5 font-mono text-xs">
-                  <div>
-                    <span className="text-[10px] text-neutral-400 block">OFFICIAL UPI ID (VPA)</span>
-                    <div className="flex items-center gap-2 mt-1">
-                      <div className="p-2 rounded-lg bg-black border border-emerald-900 text-emerald-300 font-bold text-xs flex-1 truncate select-all">
-                        {officialUpiId}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handleCopyUpi}
-                        className="px-3 py-2 rounded-lg bg-emerald-950 border border-emerald-600 text-emerald-300 text-xs font-bold flex items-center gap-1 hover:bg-emerald-900 transition-all shrink-0"
-                      >
-                        {copiedUpi ? <Check className="w-3.5 h-3.5 text-amber-400" /> : <Copy className="w-3.5 h-3.5" />}
-                        <span>{copiedUpi ? 'Copied!' : 'Copy'}</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="p-2.5 rounded-lg bg-emerald-950/40 border border-emerald-900 text-[11px] text-neutral-300 space-y-1">
-                    <div className="flex items-center justify-between text-neutral-400">
-                      <span>Event:</span>
-                      <span className="text-white font-bold truncate max-w-[140px]">{event.title}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-neutral-400">
-                      <span>Entry Fee:</span>
-                      <span className="text-amber-400 font-bold">₹{event.entryFee}</span>
-                    </div>
-                  </div>
-
-                  <a
-                    href={upiIntentUri}
-                    className="w-full py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-amber-500 text-black font-bold text-[11px] flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.02] transition-all"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5 text-black" />
-                    <span>Open in UPI App (Mobile Only)</span>
-                  </a>
+              <div className="rounded-xl bg-black/70 border border-emerald-900 p-4 space-y-3 font-mono text-xs">
+                <div className="text-[11px] text-emerald-400 font-bold uppercase tracking-wider">Payment Details</div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="p-3 rounded-lg bg-[#06130a] border border-emerald-900"><span className="text-[10px] text-neutral-500 block">BANK NAME</span><span className="text-white font-bold">INDIAN BANK</span></div>
+                  <div className="p-3 rounded-lg bg-[#06130a] border border-emerald-900"><span className="text-[10px] text-neutral-500 block">ACCOUNT NO</span><span className="text-emerald-300 font-bold select-all">7776750392</span></div>
+                  <div className="p-3 rounded-lg bg-[#06130a] border border-emerald-900"><span className="text-[10px] text-neutral-500 block">IFSC CODE</span><span className="text-emerald-300 font-bold select-all">IDIB000S201</span></div>
+                  <div className="p-3 rounded-lg bg-[#06130a] border border-emerald-900"><span className="text-[10px] text-neutral-500 block">AMOUNT PAYABLE</span><span className="text-amber-400 font-bold">₹{event.entryFee}</span></div>
                 </div>
               </div>
+
+              <p className="text-[11px] text-neutral-300 leading-relaxed">Transfer the exact amount to the bank account above. After completing the transfer, keep your bank transaction/reference number and upload the successful payment receipt below.</p>
             </div>
 
             {/* FORM RESPONSE FIELDS: TRANSACTION ID & PAYMENT SCREENSHOT */}
@@ -570,18 +515,18 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
               {/* Transaction ID / UTR Input */}
               <div className="space-y-1">
                 <label className="text-[11px] text-emerald-400 font-bold block">
-                  12-DIGIT UPI UTR / TRANSACTION ID *
+                  BANK TRANSACTION / REFERENCE ID *
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. 423871920194 or UPI/4238719201"
+                  placeholder="Enter your bank transaction/reference number"
                   value={formData.transactionId}
                   onChange={(e) => setFormData({ ...formData, transactionId: e.target.value })}
                   className="w-full bg-black border border-emerald-700 rounded-xl px-3.5 py-2.5 text-white font-mono text-xs focus:outline-none focus:border-amber-400"
                 />
                 <span className="text-[10px] text-neutral-400 block">
-                  Find the 12-digit UTR/Reference number on your GPay / PhonePe / Paytm payment screen.
+                  Find the transaction/reference number on your bank transfer receipt or confirmation.
                 </span>
               </div>
 
@@ -600,10 +545,8 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   setScreenshotFileName(null);
                   setFormData((prev) => ({ ...prev, paymentScreenshot: '' }));
                 }}
-                label="ATTACH PAYMENT QR / SCREENSHOT PROOF"
+                label="ATTACH PAYMENT SCREENSHOT / RECEIPT PROOF"
                 required={true}
-                upiAmount={event.entryFee}
-                upiId={officialUpiId}
               />
 
               {/* Google Form Response Sync Notice */}
@@ -632,7 +575,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-green-600 to-amber-500 text-black font-mono text-xs font-extrabold shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:brightness-110 transition-all"
                 >
                   <ShieldCheck className="w-4 h-4 text-black" />
-                  <span>Submit UPI Proof &amp; Mint Pass</span>
+                  <span>Submit Payment Proof &amp; Mint Pass</span>
                 </button>
               </div>
             </div>

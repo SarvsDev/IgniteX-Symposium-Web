@@ -123,7 +123,7 @@ CREATE TABLE IF NOT EXISTS registrations (
     status registration_status NOT NULL DEFAULT 'PENDING',
     payment_status payment_status_type NOT NULL DEFAULT 'SUBMITTED',
     payment_amount NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
-    payment_gateway TEXT DEFAULT 'UPI',
+    payment_gateway TEXT DEFAULT 'BANK_TRANSFER',
     transaction_id TEXT,
     payment_screenshot_url TEXT,
     registration_source TEXT DEFAULT 'website',

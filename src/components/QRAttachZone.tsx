@@ -7,8 +7,6 @@ import {
   CheckCircle2,
   X,
   Eye,
-  QrCode,
-  Download,
   Sparkles,
   AlertCircle,
   RefreshCw,
@@ -24,8 +22,6 @@ interface QRAttachZoneProps {
   onClear: () => void;
   label?: string;
   required?: boolean;
-  upiAmount?: number;
-  upiId?: string;
 }
 
 export const QRAttachZone: React.FC<QRAttachZoneProps> = ({
@@ -33,10 +29,8 @@ export const QRAttachZone: React.FC<QRAttachZoneProps> = ({
   fileName,
   onChange,
   onClear,
-  label = 'ATTACH PAYMENT QR / SCREENSHOT PROOF',
+  label = 'ATTACH PAYMENT SCREENSHOT / RECEIPT PROOF',
   required = true,
-  upiAmount,
-  upiId = 'sarveshv6413@okaxis'
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -197,35 +191,16 @@ export const QRAttachZone: React.FC<QRAttachZoneProps> = ({
     }
   };
 
-  // Download official payment QR
-  const downloadOfficialQr = () => {
-    soundFx.playClick();
-    const intent = `upi://pay?pa=${upiId}&pn=IgniteX%202026%20Symposium&cu=INR${upiAmount ? `&am=${upiAmount}` : ''}`;
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(intent)}&margin=10`;
-    
-    const link = document.createElement('a');
-    link.href = qrUrl;
-    link.download = `IgniteX2026_Payment_QR_${upiAmount ? `₹${upiAmount}` : 'VPA'}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   return (
     <div className="space-y-3 font-mono text-xs text-left">
       {/* Header Label */}
       <div className="flex items-center justify-between">
         <label className="text-emerald-400 font-bold flex items-center gap-1.5">
-          <QrCode className="w-4 h-4 text-amber-400" />
+          <Upload className="w-4 h-4 text-amber-400" />
           <span>{label}</span>
           {required && <span className="text-amber-400">*</span>}
         </label>
 
-        {upiAmount && (
-          <span className="text-[10px] text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/30">
-            PAYABLE: ₹{upiAmount}
-          </span>
-        )}
       </div>
 
       {/* Main Upload / Attachment Container */}
@@ -293,16 +268,6 @@ export const QRAttachZone: React.FC<QRAttachZoneProps> = ({
             >
               <Camera className="w-3.5 h-3.5 text-teal-400" />
               <span>Capture Photo</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={downloadOfficialQr}
-              title="Download payment QR code image"
-              className="px-3.5 py-2 rounded-xl bg-[#140e02] border border-amber-500/40 text-amber-300 hover:bg-amber-950 font-bold text-xs flex items-center gap-1.5 transition-all"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span>Save UPI QR</span>
             </button>
           </div>
 
@@ -395,7 +360,7 @@ export const QRAttachZone: React.FC<QRAttachZoneProps> = ({
           <div className="relative max-w-2xl w-full max-h-[90vh] bg-[#020b04] border border-emerald-500 rounded-3xl p-6 space-y-4 text-left shadow-2xl flex flex-col">
             <div className="flex items-center justify-between border-b border-emerald-900 pb-3">
               <div className="flex items-center gap-2">
-                <QrCode className="w-5 h-5 text-amber-400" />
+                <ImageIcon className="w-5 h-5 text-amber-400" />
                 <span className="font-bold text-white uppercase text-sm">ATTACHED PAYMENT PROOF PREVIEW</span>
               </div>
               <button
