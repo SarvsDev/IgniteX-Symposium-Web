@@ -169,7 +169,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
       'Validating UPI Transaction UTR & payment proof...',
       `Target Event: ${event.title} (Fee: ₹${event.entryFee})...`,
       `[AUTOVERIFIED] Minting verified IgniteX Quantum QR Pass...`,
-      `Storing pass securely in your digital wallet...`
+      `Uploading payment proof to Supabase Storage...`
     ];
 
     for (let i = 0; i < logs.length; i++) {
@@ -203,6 +203,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
         payment: {
           transaction_id: formData.transactionId.trim(),
           payment_screenshot_url: formData.paymentScreenshot || screenshotPreview || undefined,
+          payment_screenshot_name: screenshotFileName || undefined,
           payment_gateway: 'UPI',
         },
       });

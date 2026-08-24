@@ -12,7 +12,7 @@ import { Registration, AdminStats, VerificationResponse } from './src/types';
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
-const MAX_BODY = '25mb';
+const MAX_BODY = '32mb';
 
 app.use(express.json({ limit: MAX_BODY }));
 app.use(express.urlencoded({ limit: MAX_BODY, extended: true }));
@@ -188,10 +188,17 @@ function parseDataUrl(input: string): { buffer: Buffer; mime: string; extension:
   return { buffer: Buffer.from(match[2], 'base64'), mime, extension };
 }
 
-async function uploadPaymentProof(client: SupabaseClient, dataUrl: string, registrationId: string): Promise<string | null> {
+async function uploadPaymentProof(
+  client: SupabaseClient,
+  dataUrl: string,
+  registrationId: string,
+  registrationNumber: string,
+  originalFileName?: string,
+  transactionId?: string,
+): Promise<{ path: string; mime: string; size: number } | null> {
   const parsed = parseDataUrl(dataUrl);
-  if (!parsed) return null;
-  const pathName = `${new Date().getUTCFullYear()}/${registrationId}.${parsed.extension}`;
+  if (!parsed || parsed.buffer.length > 20 * 1024 * 1024) return null;
+  const pathName = `${registrationNumber}/payment-proof.${parsed.extension}`;
   const { error } = await client.storage.from('payment-proofs').upload(pathName, parsed.buffer, {
     contentType: parsed.mime,
     upsert: true,
@@ -200,7 +207,24 @@ async function uploadPaymentProof(client: SupabaseClient, dataUrl: string, regis
     console.warn('[Supabase Storage] payment proof upload failed:', error.message);
     return null;
   }
-  return pathName;
+  const { error: dbError } = await client.from('payment_proofs').upsert({
+    registration_id: registrationId,
+    registration_number: registrationNumber,
+    storage_bucket: 'payment-proofs',
+    storage_path: pathName,
+    original_file_name: originalFileName || null,
+    mime_type: parsed.mime,
+    file_size_bytes: parsed.buffer.length,
+    transaction_id: transactionId || null,
+    status: 'PENDING',
+    uploaded_at: new Date().toISOString(),
+  }, { onConflict: 'registration_id' });
+  if (dbError) {
+    console.warn('[Supabase DB] payment proof metadata insert failed:', dbError.message);
+    await client.storage.from('payment-proofs').remove([pathName]);
+    return null;
+  }
+  return { path: pathName, mime: parsed.mime, size: parsed.buffer.length };
 }
 
 const registrationSchema = z.object({
@@ -222,6 +246,7 @@ const registrationSchema = z.object({
   payment: z.object({
     transaction_id: z.string().optional(),
     payment_screenshot_url: z.string().optional(),
+    payment_screenshot_name: z.string().optional(),
     payment_gateway: z.string().optional(),
   }).default({}),
 });
@@ -396,8 +421,23 @@ app.post('/api/register', async (req, res) => {
     }
 
     if (body.payment.payment_screenshot_url) {
-      const storagePath = await uploadPaymentProof(client, body.payment.payment_screenshot_url, registration.id);
-      if (storagePath) await client.from('registrations').update({ payment_screenshot_url: storagePath }).eq('id', registration.id);
+      const proof = await uploadPaymentProof(
+        client,
+        body.payment.payment_screenshot_url,
+        registration.id,
+        registration.registration_number,
+        body.payment.payment_screenshot_name,
+        body.payment.transaction_id,
+      );
+      if (!proof) {
+        await client.from('registrations').delete().eq('id', registration.id);
+        throw new Error('Payment proof could not be stored. Registration was not completed. Please retry the upload.');
+      }
+      const { error: proofLinkError } = await client
+        .from('registrations')
+        .update({ payment_screenshot_url: proof.path })
+        .eq('id', registration.id);
+      if (proofLinkError) throw proofLinkError;
     }
 
     const { data: finalReg, error: finalError } = await client.from('registrations').select('*,participants(*)').eq('id', registration.id).single();
@@ -463,6 +503,52 @@ app.get('/api/admin/registrations', async (req, res) => {
     res.json({ success: true, total: registrations.length, registrations });
   } catch (error: any) {
     res.status(500).json({ success: false, error: { code: 'ADMIN_REGISTRATIONS_FAILED', message: error.message } });
+  }
+});
+
+app.get('/api/admin/payment-proof/:registrationId', async (req, res) => {
+  if (!requireAdmin(req, res)) return;
+  const client = requireSupabase(res); if (!client) return;
+  try {
+    const registrationId = safeString(req.params.registrationId);
+    if (!registrationId) {
+      res.status(400).json({ success: false, error: { code: 'MISSING_REGISTRATION_ID', message: 'Registration ID is required.' } });
+      return;
+    }
+
+    const { data: proof, error } = await client
+      .from('payment_proofs')
+      .select('*')
+      .eq('registration_id', registrationId)
+      .maybeSingle();
+    if (error) throw error;
+    if (!proof) {
+      res.status(404).json({ success: false, error: { code: 'PAYMENT_PROOF_NOT_FOUND', message: 'No payment proof is stored for this registration.' } });
+      return;
+    }
+
+    const { data: signed, error: signedError } = await client.storage
+      .from(proof.storage_bucket || 'payment-proofs')
+      .createSignedUrl(proof.storage_path, 300);
+    if (signedError || !signed?.signedUrl) throw signedError || new Error('Could not create a temporary payment-proof URL.');
+
+    res.json({
+      success: true,
+      proof: {
+        id: proof.id,
+        registration_id: proof.registration_id,
+        registration_number: proof.registration_number,
+        original_file_name: proof.original_file_name,
+        mime_type: proof.mime_type,
+        file_size_bytes: proof.file_size_bytes,
+        status: proof.status,
+        uploaded_at: proof.uploaded_at,
+        signed_url: signed.signedUrl,
+        expires_in_seconds: 300,
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: { code: 'PAYMENT_PROOF_FAILED', message: error.message || 'Failed to open payment proof.' } });
   }
 });
 

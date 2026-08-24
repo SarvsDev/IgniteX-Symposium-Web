@@ -18,6 +18,8 @@ import {
   Mail,
   Camera,
   Square,
+  Image as ImageIcon,
+  Eye,
 } from 'lucide-react';
 import {
   BarChart,
@@ -43,6 +45,8 @@ import {
   fetchEventRegistrationCounts,
   ParticipantEventRow,
   EventCountRow,
+  fetchPaymentProof,
+  PaymentProofResponse,
 } from '../lib/adminService';
 
 interface AdminDashboardProps {
@@ -66,6 +70,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [participantEventRows, setParticipantEventRows] = useState<ParticipantEventRow[]>([]);
   const [eventCounts, setEventCounts] = useState<EventCountRow[]>([]);
+  const [paymentProof, setPaymentProof] = useState<PaymentProofResponse | null>(null);
+  const [paymentProofLoading, setPaymentProofLoading] = useState(false);
+  const [paymentProofError, setPaymentProofError] = useState<string | null>(null);
 
   const [scannerActive, setScannerActive] = useState(false);
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
@@ -169,6 +176,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       setActionNotification(`Error: ${result.message}`);
     }
     setTimeout(() => setActionNotification(null), 5000);
+  };
+
+  const handleViewPaymentProof = async (reg: Registration) => {
+    soundFx.playClick();
+    setPaymentProofLoading(true);
+    setPaymentProofError(null);
+    try {
+      const proof = await fetchPaymentProof(reg.id, adminKey);
+      setPaymentProof(proof);
+    } catch (error: any) {
+      soundFx.playAlert();
+      setPaymentProofError(error?.message || 'Could not open payment proof.');
+    } finally {
+      setPaymentProofLoading(false);
+    }
   };
 
   const handleResendEmail = async (reg: Registration) => {
@@ -792,6 +814,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
                             <button
                               type="button"
+                              onClick={() => handleViewPaymentProof(reg)}
+                              title="View uploaded payment proof"
+                              className="px-2 py-1 rounded bg-[#08150c] hover:bg-emerald-950 border border-emerald-900 text-amber-400 transition-all flex items-center gap-1 text-[10px] font-bold"
+                            >
+                              <ImageIcon className="w-3.5 h-3.5" />
+                              <span>Proof</span>
+                            </button>
+
+                            <button
+                              type="button"
                               onClick={() => handleResendEmail(reg)}
                               disabled={sendingEmailId === reg.id}
                               title="Resend Pass Email"
@@ -900,6 +932,56 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+
+        {paymentProof && (
+          <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
+            <div className="relative w-full max-w-3xl max-h-[92vh] overflow-auto rounded-2xl bg-[#030a05] border border-emerald-700 shadow-2xl p-5">
+              <button
+                type="button"
+                onClick={() => setPaymentProof(null)}
+                className="absolute top-3 right-3 p-2 rounded-lg bg-[#08150c] border border-emerald-900 text-neutral-400 hover:text-white"
+                aria-label="Close payment proof"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              <div className="pr-10 mb-4">
+                <div className="text-[10px] font-mono font-bold text-amber-400 uppercase">PAYMENT PROOF</div>
+                <h3 className="text-lg font-mono font-black text-white">{paymentProof.registration_number}</h3>
+                <p className="text-[10px] font-mono text-neutral-500 mt-1">
+                  {paymentProof.original_file_name || 'Uploaded payment receipt'} • {Math.max(1, Math.round(paymentProof.file_size_bytes / 1024))} KB • {paymentProof.status}
+                </p>
+              </div>
+              <div className="rounded-xl bg-black border border-emerald-950 overflow-hidden min-h-[300px] flex items-center justify-center">
+                {paymentProof.mime_type === 'application/pdf' ? (
+                  <iframe src={paymentProof.signed_url} title="Payment proof" className="w-full h-[70vh]" />
+                ) : (
+                  <img src={paymentProof.signed_url} alt="Uploaded payment proof" className="max-w-full max-h-[70vh] object-contain" />
+                )}
+              </div>
+              <div className="mt-4 flex justify-end gap-2">
+                <a href={paymentProof.signed_url} target="_blank" rel="noreferrer" className="px-4 py-2 rounded-xl bg-emerald-950 border border-emerald-700 text-emerald-300 font-mono text-xs font-bold flex items-center gap-2">
+                  <Eye className="w-4 h-4" /> Open Full Size
+                </a>
+                <button type="button" onClick={() => setPaymentProof(null)} className="px-4 py-2 rounded-xl bg-[#08150c] border border-emerald-900 text-neutral-300 font-mono text-xs font-bold">Close</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {paymentProofLoading && (
+          <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/70 backdrop-blur-sm">
+            <div className="px-5 py-4 rounded-xl bg-[#06120a] border border-emerald-700 text-emerald-300 font-mono text-xs">Loading payment proof...</div>
+          </div>
+        )}
+
+        {paymentProofError && (
+          <div className="fixed bottom-5 right-5 z-[90] max-w-sm p-4 rounded-xl bg-red-950 border border-red-700 text-red-300 font-mono text-xs flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{paymentProofError}</span>
+            <button type="button" onClick={() => setPaymentProofError(null)} className="ml-auto text-red-400 hover:text-white"><X className="w-4 h-4" /></button>
           </div>
         )}
 

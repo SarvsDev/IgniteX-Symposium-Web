@@ -43,3 +43,14 @@ If the Supabase Edge Functions are deployed separately, redeploy the updated `re
 ## Database transparency
 
 Participant names, event names, registration IDs, verification codes, and QR tokens are stored directly as plaintext columns. No verification-code hash/encryption layer is used. PostgreSQL RLS still controls which application roles can read the tables; RLS is access control, not encryption.
+
+
+## Payment proof storage
+- Participant uploads the payment screenshot during registration.
+- The browser sends the compressed image as a data URL to the registration backend.
+- The backend stores the original image bytes in the private Supabase Storage bucket `payment-proofs`.
+- PostgreSQL `registrations.payment_screenshot_url` stores the storage path, not the image data.
+- PostgreSQL `payment_proofs` stores transparent metadata: registration ID, IGX number, file name, MIME type, size, transaction ID and verification status.
+- Admins can click **Proof** in the registration table. The backend creates a temporary signed URL and displays the image without making the bucket public.
+- Approving a registration automatically changes the payment proof status to `VERIFIED`; rejecting changes it to `REJECTED`.
+- No encryption or hashing is used for participant/payment-proof data. Storage access is controlled by the private bucket and admin endpoint.

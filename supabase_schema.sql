@@ -224,3 +224,25 @@ CREATE POLICY "Users can view own registration" ON public.registrations FOR SELE
 CREATE POLICY "Service role full access registrations" ON public.registrations FOR ALL USING (true);
 CREATE POLICY "Service role full access attendance" ON public.attendance FOR ALL USING (true);
 CREATE POLICY "Service role full access admins" ON public.admins FOR ALL USING (true);
+
+
+-- 12. Payment Proof Metadata (image/file lives in Supabase Storage)
+CREATE TABLE IF NOT EXISTS public.payment_proofs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    registration_id UUID NOT NULL UNIQUE REFERENCES public.registrations(id) ON DELETE CASCADE,
+    registration_number TEXT NOT NULL,
+    storage_bucket TEXT NOT NULL DEFAULT 'payment-proofs',
+    storage_path TEXT NOT NULL UNIQUE,
+    original_file_name TEXT,
+    mime_type TEXT NOT NULL,
+    file_size_bytes BIGINT NOT NULL DEFAULT 0,
+    transaction_id TEXT,
+    status TEXT NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING','VERIFIED','REJECTED')),
+    uploaded_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    verified_at TIMESTAMPTZ,
+    verified_by UUID,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_payment_proofs_registration_id ON public.payment_proofs(registration_id);
+CREATE INDEX IF NOT EXISTS idx_payment_proofs_status ON public.payment_proofs(status);

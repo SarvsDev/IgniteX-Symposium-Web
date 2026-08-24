@@ -11,6 +11,8 @@ DECLARE
   chars TEXT := '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   i INTEGER;
 BEGIN
+  -- Serialize ID generation so concurrent registrations cannot receive the same value.
+  PERFORM pg_advisory_xact_lock(hashtext('ignitex_2026_registration_number'));
   LOOP
     candidate := 'IGX-';
     FOR i IN 1..4 LOOP

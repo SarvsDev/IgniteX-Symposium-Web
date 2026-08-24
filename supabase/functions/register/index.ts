@@ -27,8 +27,59 @@ interface RegisterPayload {
   payment: {
     transaction_id?: string;
     payment_screenshot_url?: string;
+    payment_screenshot_name?: string;
     payment_gateway?: string;
   };
+}
+
+
+function parseDataUrl(input: string): { bytes: Uint8Array; mime: string; extension: string } | null {
+  const match = input.match(/^data:([^;]+);base64,(.+)$/s);
+  if (!match) return null;
+  const mime = match[1];
+  if (!['image/png', 'image/jpeg', 'image/webp', 'application/pdf'].includes(mime)) return null;
+  const extension = mime === 'image/png' ? 'png' : mime === 'image/webp' ? 'webp' : mime === 'application/pdf' ? 'pdf' : 'jpg';
+  const binary = atob(match[2]);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return { bytes, mime, extension };
+}
+
+async function storePaymentProof(
+  supabase: ReturnType<typeof createClient>,
+  dataUrl: string,
+  registrationId: string,
+  registrationNumber: string,
+  originalFileName?: string,
+  transactionId?: string,
+) {
+  const parsed = parseDataUrl(dataUrl);
+  if (!parsed) throw new Error('Payment proof must be a PNG, JPG, WEBP image, or PDF data URL.');
+  if (parsed.bytes.byteLength > 20 * 1024 * 1024) throw new Error('Payment proof must be 20 MB or smaller.');
+  const storagePath = `${registrationNumber}/payment-proof.${parsed.extension}`;
+  const { error: uploadError } = await supabase.storage.from('payment-proofs').upload(storagePath, parsed.bytes, {
+    contentType: parsed.mime,
+    upsert: true,
+  });
+  if (uploadError) throw new Error(`Payment proof storage failed: ${uploadError.message}`);
+
+  const { error: metadataError } = await supabase.from('payment_proofs').upsert({
+    registration_id: registrationId,
+    registration_number: registrationNumber,
+    storage_bucket: 'payment-proofs',
+    storage_path: storagePath,
+    original_file_name: originalFileName || null,
+    mime_type: parsed.mime,
+    file_size_bytes: parsed.bytes.byteLength,
+    transaction_id: transactionId || null,
+    status: 'PENDING',
+    uploaded_at: new Date().toISOString(),
+  }, { onConflict: 'registration_id' });
+  if (metadataError) {
+    await supabase.storage.from('payment-proofs').remove([storagePath]);
+    throw new Error(`Payment proof database record failed: ${metadataError.message}`);
+  }
+  return storagePath;
 }
 
 serve(async (req: Request) => {
@@ -227,7 +278,7 @@ serve(async (req: Request) => {
         payment_amount: totalCalculatedAmount,
         payment_gateway: payment.payment_gateway || 'UPI',
         transaction_id: payment.transaction_id?.trim() || null,
-        payment_screenshot_url: payment.payment_screenshot_url || null,
+        payment_screenshot_url: null,
         receipt_number: receiptNumber,
         submitted_at: new Date().toISOString(),
       })
@@ -236,6 +287,25 @@ serve(async (req: Request) => {
 
     if (regError || !newReg) {
       throw new Error(`Registration record creation failed: ${regError?.message}`);
+    }
+
+    if (payment.payment_screenshot_url) {
+      const storagePath = await storePaymentProof(
+        supabase,
+        payment.payment_screenshot_url,
+        newReg.id,
+        newReg.registration_number,
+        payment.payment_screenshot_name,
+        payment.transaction_id,
+      );
+      const { error: proofLinkError } = await supabase
+        .from('registrations')
+        .update({ payment_screenshot_url: storagePath })
+        .eq('id', newReg.id);
+      if (proofLinkError) {
+        await supabase.from('registrations').delete().eq('id', newReg.id);
+        throw proofLinkError;
+      }
     }
 
     // 9. Insert registration_events

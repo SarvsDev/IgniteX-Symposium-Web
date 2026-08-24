@@ -87,3 +87,23 @@ export async function fetchEventRegistrationCounts(adminKey: string): Promise<Ev
   if (!response.ok || !data.success) throw new Error(data.error?.message || 'Failed to fetch event counts');
   return data.counts || [];
 }
+
+export interface PaymentProofResponse {
+  id: string;
+  registration_id: string;
+  registration_number: string;
+  original_file_name?: string;
+  mime_type: string;
+  file_size_bytes: number;
+  status: 'PENDING' | 'VERIFIED' | 'REJECTED';
+  uploaded_at: string;
+  signed_url: string;
+  expires_in_seconds: number;
+}
+
+export async function fetchPaymentProof(registrationId: string, adminKey: string): Promise<PaymentProofResponse> {
+  const response = await fetch(`/api/admin/payment-proof/${encodeURIComponent(registrationId)}`, { headers: adminHeaders(adminKey) });
+  const data = await parseResponse(response);
+  if (!response.ok || !data.success) throw new Error(data.error?.message || 'Failed to open payment proof');
+  return data.proof;
+}

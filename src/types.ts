@@ -205,6 +205,7 @@ export interface RegistrationSubmissionPayload {
   payment: {
     transaction_id?: string;
     payment_screenshot_url?: string;
+    payment_screenshot_name?: string;
     payment_gateway?: string;
   };
 }
