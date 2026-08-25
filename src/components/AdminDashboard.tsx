@@ -39,7 +39,7 @@ import {
   fetchAdminStats,
   approveRegistration,
   rejectRegistration,
-  resendRegistrationEmail,
+  sendRegistrationEmail,
   verifyPassTicket,
   fetchParticipantEventReport,
   fetchEventRegistrationCounts,
@@ -216,7 +216,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     setSendingEmailId(reg.id);
     setActionNotification(`Dispatching pass email to ${reg.userEmail}...`);
 
-    const result = await resendRegistrationEmail(reg.id, adminKey);
+    const result = await sendRegistrationEmail(reg.id, adminKey);
     setSendingEmailId(null);
     if (result.success) {
       soundFx.playSuccess();

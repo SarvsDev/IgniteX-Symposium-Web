@@ -42,8 +42,8 @@ export async function rejectRegistration(registrationId: string, rejectionReason
   return { success: true, message: data.data?.message || 'Registration rejected' };
 }
 
-export async function resendRegistrationEmail(registrationId: string, adminKey: string) {
-  const response = await fetch('/api/admin/resend-email', { method: 'POST', headers: adminHeaders(adminKey, true), body: JSON.stringify({ registration_id: registrationId }) });
+export async function sendRegistrationEmail(registrationId: string, adminKey: string) {
+  const response = await fetch('/api/admin/send-email', { method: 'POST', headers: adminHeaders(adminKey, true), body: JSON.stringify({ registration_id: registrationId }) });
   const data = await parseResponse(response);
   return { success: response.ok && Boolean(data.success), message: data.data?.message || data.error?.message || 'Email operation failed' };
 }

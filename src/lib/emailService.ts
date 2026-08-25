@@ -1,4 +1,3 @@
-import { Resend } from 'resend';
 import QRCode from 'qrcode';
 import { SentEmailLog } from '../types';
 
@@ -18,22 +17,6 @@ export interface EmailPassData {
   amountPaid: number;
   paymentGateway?: string;
   registeredAt?: string;
-}
-
-let resendClient: Resend | null = null;
-
-function getResendClient(): Resend | null {
-  if (resendClient) return resendClient;
-  const key = process.env.RESEND_API_KEY;
-  if (key && !key.includes('placeholder')) {
-    try {
-      resendClient = new Resend(key);
-      return resendClient;
-    } catch (e) {
-      console.warn('[Resend] Could not initialize Resend client:', e);
-    }
-  }
-  return null;
 }
 
 export async function generateEventPassHTML(data: EmailPassData): Promise<string> {
@@ -183,58 +166,14 @@ export async function generateEventPassHTML(data: EmailPassData): Promise<string
   `;
 }
 
-export async function sendAutomatedPassEmail(data: EmailPassData): Promise<{
-  success: boolean;
-  message: string;
-  log: SentEmailLog;
-}> {
+export async function sendAutomatedPassEmail(data: EmailPassData): Promise<{ success: boolean; message: string; log: SentEmailLog }> {
   const html = await generateEventPassHTML(data);
   const subject = `🔥 [IGNITEX 2026 PASS] ${data.eventTitle} - ID #${data.ticketHash}`;
-
-  const emailLog: SentEmailLog = {
+  const log: SentEmailLog = {
     id: `EML-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-    to: data.userEmail,
-    recipientEmail: data.userEmail,
-    recipientName: data.userName,
-    subject,
-    eventTitle: data.eventTitle,
-    ticketHash: data.ticketHash,
-    receiptNumber: data.receiptNumber,
-    amountPaid: data.amountPaid,
-    sentAt: new Date().toISOString(),
-    status: 'RECORDED',
-    htmlContent: html,
+    to: data.userEmail, recipientEmail: data.userEmail, recipientName: data.userName, subject,
+    eventTitle: data.eventTitle, ticketHash: data.ticketHash, receiptNumber: data.receiptNumber,
+    amountPaid: data.amountPaid, sentAt: new Date().toISOString(), status: 'RECORDED', htmlContent: html,
   };
-
-  const resend = getResendClient();
-  if (resend) {
-    try {
-      const fromEmail = process.env.RESEND_FROM_EMAIL || 'IgniteX 2026 <onboarding@resend.dev>';
-      const res = await resend.emails.send({
-        from: fromEmail,
-        to: data.userEmail,
-        subject,
-        html,
-      });
-
-      if (res.error) {
-        console.warn('[Resend] Delivery warning:', res.error);
-        emailLog.status = 'RECORDED';
-      } else {
-        console.log(`[Resend] Successfully dispatched pass email to ${data.userEmail}, ID: ${res.data?.id}`);
-        emailLog.status = 'DELIVERED';
-      }
-    } catch (err: any) {
-      console.warn('[Resend] Exception dispatching email via Resend API:', err.message || err);
-      emailLog.status = 'RECORDED';
-    }
-  } else {
-    console.log(`[PASS DISPATCH] Automated event pass generated and recorded locally for ${data.userEmail}.`);
-  }
-
-  return {
-    success: true,
-    message: `Automated pass generated & recorded for ${data.userEmail}.`,
-    log: emailLog,
-  };
+  return { success: true, message: `Pass generated for ${data.userEmail}. Sending is handled server-side by Gmail SMTP.`, log };
 }

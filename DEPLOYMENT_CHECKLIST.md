@@ -9,7 +9,7 @@
 - [ ] Set `SUPABASE_SERVICE_ROLE_KEY`.
 - [ ] Set `ADMIN_SECRET_KEY`.
 - [ ] Set `APP_URL`.
-- [ ] Configure Resend if approval emails are required.
+- [ ] Configure Gmail SMTP if approval emails are required.
 - [ ] Install dependencies with `npm install`.
 - [ ] Run `npm run lint`.
 - [ ] Run `npm run build`.

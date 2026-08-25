@@ -3,7 +3,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import { randomBytes } from 'crypto';
 import path from 'path';
 import QRCode from 'qrcode';
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 import { EVENTS_DATA } from './src/data/eventsData';
@@ -21,8 +21,9 @@ app.use(express.json({ limit: MAX_BODY }));
 app.use(express.urlencoded({ limit: MAX_BODY, extended: true }));
 
 const { url: SUPABASE_URL, serviceRoleKey: SUPABASE_SERVICE_ROLE_KEY, configured: supabaseConfigured } = supabaseConfig();
-const RESEND_API_KEY = envValue('RESEND_API_KEY');
-const RESEND_FROM_EMAIL = envValue('RESEND_FROM_EMAIL');
+const GMAIL_SMTP_USER = envValue('GMAIL_SMTP_USER', 'SMTP_USER', 'GMAIL_USER');
+const GMAIL_SMTP_APP_PASSWORD = envValue('GMAIL_SMTP_APP_PASSWORD', 'SMTP_PASS', 'GMAIL_APP_PASSWORD');
+const GMAIL_SMTP_FROM_NAME = envValue('GMAIL_SMTP_FROM_NAME', 'SMTP_FROM_NAME') || 'IgniteX 2026';
 const APP_URL = envValue('APP_URL') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${PORT}`);
 const { allowed: ADMIN_KEYS } = adminSecrets();
 
@@ -33,7 +34,7 @@ if (supabaseConfigured) {
   });
 }
 
-const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
+const gmailTransport = GMAIL_SMTP_USER && GMAIL_SMTP_APP_PASSWORD ? nodemailer.createTransport({ service: 'gmail', auth: { user: GMAIL_SMTP_USER, pass: GMAIL_SMTP_APP_PASSWORD } }) : null;
 
 function serverConfigError(): string | null {
   if (!SUPABASE_URL) return 'SUPABASE_URL is missing.';
@@ -255,14 +256,14 @@ const registrationSchema = z.object({
 app.get('/api/health', async (_req, res) => {
   const configError = serverConfigError();
   if (!supabaseAdmin) {
-    res.status(503).json({ status: 'degraded', database: 'not_configured', resend: Boolean(resend), error: configError });
+    res.status(503).json({ status: 'degraded', database: 'not_configured', gmailSmtp: Boolean(gmailTransport), error: configError });
     return;
   }
   const { error } = await supabaseAdmin.from('events').select('id').limit(1);
   res.status(error ? 503 : 200).json({
     status: error ? 'degraded' : 'ok',
     database: error ? 'error' : 'supabase',
-    resend: Boolean(resend),
+    gmailSmtp: Boolean(gmailTransport),
     error: error?.message || null,
     timestamp: new Date().toISOString(),
   });
@@ -614,22 +615,27 @@ function buildApprovalEmail(input: { name: string; registrationNumber: string; e
 }
 
 async function sendApprovalEmail(client: SupabaseClient, registrationId: string): Promise<{ success: boolean; messageId?: string; error?: string }> {
-  if (!resend || !RESEND_FROM_EMAIL) return { success: false, error: 'RESEND_API_KEY or RESEND_FROM_EMAIL is missing.' };
+  if (!gmailTransport || !GMAIL_SMTP_USER || !GMAIL_SMTP_APP_PASSWORD) return { success: false, error: 'Gmail SMTP is not configured. Set GMAIL_SMTP_USER and GMAIL_SMTP_APP_PASSWORD.' };
   const aggregate = await getRegistrationAggregate(client, registrationId);
   const recipient = aggregate.reg.participants?.email;
   if (!recipient) return { success: false, error: 'Participant email not found.' };
   const verifyUrl = `${APP_URL}/verify?token=${encodeURIComponent(aggregate.reg.verification_qr_token)}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(verifyUrl)}`;
   const html = buildApprovalEmail({ name: aggregate.reg.participants.full_name, registrationNumber: aggregate.reg.registration_number, events: aggregate.events, teamNames: aggregate.teams.map((t: any) => t.team_name), amount: Number(aggregate.reg.payment_amount || 0), qrUrl });
-  const result = await resend.emails.send({
-    from: RESEND_FROM_EMAIL,
-    to: recipient,
-    subject: `IGNITEX 2026 — Registration Approved | ${aggregate.reg.registration_number}`,
-    html,
-  });
-  if (result.error) return { success: false, error: result.error.message };
-  await client.from('email_logs').insert({ registration_id: registrationId, recipient_email: recipient, recipient_name: aggregate.reg.participants.full_name, subject: `IGNITEX 2026 — Registration Approved | ${aggregate.reg.registration_number}`, email_type: 'REGISTRATION_APPROVED', resend_message_id: result.data?.id || null, status: 'SENT' });
-  return { success: true, messageId: result.data?.id };
+  try {
+    const subject = `IGNITEX 2026 — Registration Approved | ${aggregate.reg.registration_number}`;
+    const info = await gmailTransport.sendMail({
+      from: `${GMAIL_SMTP_FROM_NAME} <${GMAIL_SMTP_USER}>`,
+      to: recipient,
+      subject,
+      html,
+      text: `Hello ${aggregate.reg.participants.full_name}, your IgniteX 2026 registration has been approved. Registration ID: ${aggregate.reg.registration_number}.`,
+    });
+    await client.from('email_logs').insert({ registration_id: registrationId, recipient_email: recipient, recipient_name: aggregate.reg.participants.full_name, subject, email_type: 'REGISTRATION_APPROVED', resend_message_id: info.messageId || null, status: 'SENT' });
+    return { success: true, messageId: info.messageId };
+  } catch (error:any) {
+    return { success: false, error: `Gmail SMTP failed (${error?.code || 'SMTP_ERROR'}): ${error?.response || error?.message || 'Email send failed.'}` };
+  }
 }
 
 app.post('/api/admin/approve-registration', async (req, res) => {
@@ -667,7 +673,7 @@ app.post('/api/admin/reject-registration', async (req, res) => {
   } catch (error: any) { res.status(500).json({ success: false, error: { code: 'REJECTION_FAILED', message: error.message } }); }
 });
 
-app.post('/api/admin/resend-email', async (req, res) => {
+app.post('/api/admin/send-email', async (req, res) => {
   if (!requireAdmin(req, res)) return;
   const client = requireSupabase(res); if (!client) return;
   try {
@@ -678,7 +684,7 @@ app.post('/api/admin/resend-email', async (req, res) => {
     const result = await sendApprovalEmail(client, id);
     if (!result.success) { res.status(502).json({ success: false, error: { code: 'EMAIL_FAILED', message: result.error } }); return; }
     res.json({ success: true, data: { message: 'Pass email resent successfully.' } });
-  } catch (error: any) { res.status(500).json({ success: false, error: { code: 'RESEND_FAILED', message: error.message } }); }
+  } catch (error: any) { res.status(500).json({ success: false, error: { code: 'EMAIL_SEND_FAILED', message: error.message } }); }
 });
 
 app.post('/api/attendance/verify', async (req, res) => {
@@ -837,8 +843,7 @@ app.get('/api/config-status', (_req,res) => {
   res.json({
     supabaseUrlConfigured: Boolean(SUPABASE_URL),
     supabaseServiceRoleConfigured: Boolean(SUPABASE_SERVICE_ROLE_KEY),
-    resendConfigured: Boolean(RESEND_API_KEY),
-    resendFromConfigured: Boolean(RESEND_FROM_EMAIL),
+    gmailSmtpConfigured: Boolean(GMAIL_SMTP_USER && GMAIL_SMTP_APP_PASSWORD),
     appUrlConfigured: Boolean(process.env.APP_URL),
     adminSecretConfigured: ADMIN_KEYS.size > 0,
   });
@@ -865,7 +870,7 @@ async function startServer() {
   app.listen(PORT, () => {
     console.log(`IgniteX server running on http://localhost:${PORT}`);
     console.log(`Supabase: ${supabaseAdmin ? 'configured' : 'NOT CONFIGURED'}`);
-    console.log(`Resend: ${resend && RESEND_FROM_EMAIL ? 'configured' : 'NOT CONFIGURED'}`);
+    console.log(`Gmail SMTP: ${gmailTransport ? 'configured' : 'NOT CONFIGURED'}`);
   });
 }
 

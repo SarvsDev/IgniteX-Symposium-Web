@@ -10,8 +10,8 @@
 ## Required Production Environment Variables
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
-- `RESEND_API_KEY`
-- `RESEND_FROM_EMAIL`
+- `GMAIL_SMTP_USER / GMAIL_SMTP_APP_PASSWORD`
+- `GMAIL_SMTP_FROM_NAME`
 - `ADMIN_SECRET_KEY`
 - `APP_URL` (use `https://event-ignitex.vercel.app` after the domain is confirmed)
 

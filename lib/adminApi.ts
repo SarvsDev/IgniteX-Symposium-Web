@@ -1,5 +1,5 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 import { adminSecrets, envValue, supabaseConfig } from './serverEnv.js';
 
 function getSupabase(): SupabaseClient | null {
@@ -10,21 +10,20 @@ function getSupabase(): SupabaseClient | null {
   });
 }
 
-function getResend(): Resend | null {
-  const key = envValue('RESEND_API_KEY');
-  return key ? new Resend(key) : null;
+function getSmtpConfig() {
+  const user = envValue('GMAIL_SMTP_USER', 'SMTP_USER', 'GMAIL_USER');
+  const appPassword = envValue('GMAIL_SMTP_APP_PASSWORD', 'SMTP_PASS', 'GMAIL_APP_PASSWORD');
+  const fromName = envValue('GMAIL_SMTP_FROM_NAME', 'SMTP_FROM_NAME') || 'IgniteX 2026';
+  return { user, appPassword, fromName, configured: Boolean(user && appPassword) };
 }
 
-function getFromEmail(): string {
-  return envValue('RESEND_FROM_EMAIL');
-}
-
-function isResendTestMode(): boolean {
-  return ['1', 'true', 'yes', 'on'].includes(envValue('RESEND_TEST_MODE').toLowerCase());
-}
-
-function getResendTestRecipient(): string {
-  return envValue('RESEND_TEST_RECIPIENT');
+function createGmailTransport() {
+  const config = getSmtpConfig();
+  if (!config.configured) return null;
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: { user: config.user, pass: config.appPassword },
+  });
 }
 
 function getAppUrl(): string {
@@ -137,64 +136,55 @@ function escapeHtml(v: unknown): string {
 }
 
 async function sendApproval(client: SupabaseClient, registrationId: string) {
-  const resend = getResend();
-  const RESEND_FROM_EMAIL = getFromEmail();
-  if (!resend || !RESEND_FROM_EMAIL) return { success: false, error: 'RESEND_API_KEY or RESEND_FROM_EMAIL is missing.' };
+  const smtp = createGmailTransport();
+  const smtpConfig = getSmtpConfig();
+  if (!smtp || !smtpConfig.configured) {
+    return { success: false, error: 'Gmail SMTP is not configured. Set GMAIL_SMTP_USER and GMAIL_SMTP_APP_PASSWORD in Vercel.' };
+  }
+
   const a = await aggregate(client, registrationId);
   const p = a.reg.participants;
   if (!p?.email) return { success: false, error: 'Participant email not found.' };
+
   const eventsHtml = a.events.map((e: any) => `<li><strong>${escapeHtml(e.title)}</strong></li>`).join('');
-  const teamsHtml = a.teams.length ? `<p><b>Team:</b> ${a.teams.map((t:any)=>escapeHtml(t.team_name)).join(', ')}</p>` : '';
+  const teamsHtml = a.teams.length ? `<p><b>Team:</b> ${a.teams.map((t: any) => escapeHtml(t.team_name)).join(', ')}</p>` : '';
   const APP_URL = getAppUrl();
   const verifyUrl = `${APP_URL}/verify?token=${encodeURIComponent(a.reg.verification_qr_token || a.reg.registration_number)}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(verifyUrl)}`;
   const html = `<!doctype html><html><body style="margin:0;background:#030905;color:#fff;font-family:Arial,sans-serif;padding:24px"><div style="max-width:620px;margin:auto;background:#06120a;border:1px solid #00ff66;border-radius:16px;padding:28px"><div style="color:#00ff66;font-weight:800;letter-spacing:2px">IGNITEX 2026</div><h1>Registration Approved</h1><p>Hello ${escapeHtml(p.full_name)}, your registration has been approved.</p><div style="background:#020a04;border:1px dashed #00ff66;border-radius:12px;padding:18px"><p><b>Registration ID:</b></p><div style="font-size:24px;font-weight:900;letter-spacing:3px;color:#00ff66">${escapeHtml(a.reg.registration_number)}</div><p><b>Amount:</b> ₹${Number(a.reg.payment_amount || 0)}</p>${teamsHtml}<h3>Events</h3><ul>${eventsHtml}</ul><img src="${qrUrl}" width="220" height="220" alt="Registration QR" style="display:block;margin:20px auto;background:#fff;padding:8px;border-radius:10px"/></div><p style="color:#aaa">Present this QR or your Registration ID at the event verification desk.</p></div></body></html>`;
-  const testMode = isResendTestMode();
-  const testRecipient = getResendTestRecipient();
-  if (testMode && !testRecipient) {
-    return { success: false, error: 'RESEND_TEST_MODE is enabled but RESEND_TEST_RECIPIENT is missing.' };
-  }
-
-  // Resend's unverified/testing setup can only deliver to the account owner's
-  // email. In production, disable RESEND_TEST_MODE and use a verified domain.
-  const recipient = testMode ? testRecipient : p.email;
-  const subject = `${testMode ? '[TEST] ' : ''}IGNITEX 2026 — Registration Approved | ${a.reg.registration_number}`;
-  const result = await resend.emails.send({
-    from: RESEND_FROM_EMAIL,
-    to: recipient,
-    subject,
-    html,
-  });
-
-  if (result.error) {
-    const message = String(result.error.message || 'Resend rejected the email.');
-    if (/only send testing emails to your own email|verify a domain|resend\.dev/i.test(message)) {
-      return {
-        success: false,
-        error: 'Resend is still in testing mode. Verify a domain in Resend and set RESEND_FROM_EMAIL to an address on that verified domain, or enable RESEND_TEST_MODE with RESEND_TEST_RECIPIENT set to your Resend account email for testing.',
-      };
-    }
-    return { success: false, error: message };
-  }
+  const subject = `IGNITEX 2026 — Registration Approved | ${a.reg.registration_number}`;
+  const from = `${smtpConfig.fromName} <${smtpConfig.user}>`;
 
   try {
-    await client.from('email_logs').insert({
-      registration_id: registrationId,
-      recipient_email: recipient,
-      recipient_name: testMode ? `${p.full_name} (TEST)` : p.full_name,
+    const info = await smtp.sendMail({
+      from,
+      to: p.email,
       subject,
-      email_type: 'REGISTRATION_APPROVED',
-      resend_message_id: result.data?.id || null,
-      status: 'SENT',
+      html,
+      text: `Hello ${p.full_name}, your IgniteX 2026 registration has been approved. Registration ID: ${a.reg.registration_number}.`,
     });
-  } catch {}
 
-  return {
-    success: true,
-    messageId: result.data?.id,
-    testMode,
-    recipient,
-  };
+    try {
+      await client.from('email_logs').insert({
+        registration_id: registrationId,
+        recipient_email: p.email,
+        recipient_name: p.full_name,
+        subject,
+        email_type: 'REGISTRATION_APPROVED',
+        resend_message_id: info.messageId || null,
+        status: 'SENT',
+      });
+    } catch (logError) {
+      console.warn('[Gmail SMTP] Email sent but email log could not be saved:', logError);
+    }
+
+    return { success: true, messageId: info.messageId, recipient: p.email };
+  } catch (error: any) {
+    const code = error?.code || 'SMTP_ERROR';
+    const message = error?.response || error?.message || 'Gmail SMTP rejected the email.';
+    console.error('[Gmail SMTP] Send failed:', { code, message });
+    return { success: false, error: `Gmail SMTP failed (${code}): ${String(message)}` };
+  }
 }
 
 export async function handleAdminRoute(req: any, res: any, forcedPath?: string) {
@@ -285,7 +275,7 @@ export async function handleAdminRoute(req: any, res: any, forcedPath?: string) 
       return res.json({success:true,data:{message:'Registration rejected.',registration_id:id}});
     }
 
-    if (req.method === 'POST' && path === 'resend-email') {
+    if (req.method === 'POST' && path === 'send-email') {
       const id=text(jsonBody(req).registration_id||jsonBody(req).registrationId); const {data:reg,error}=await client.from('registrations').select('*').eq('id',id).single();
       if(error||!reg) return res.status(404).json({success:false,error:{code:'NOT_FOUND',message:'Registration not found.'}});
       if(!reg.verification_code||!reg.verification_qr_token) return res.status(409).json({success:false,error:{code:'NOT_APPROVED',message:'Approve the registration before sending the pass.'}});

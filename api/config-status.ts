@@ -7,10 +7,9 @@ export default async function handler(_req: any, res: any) {
     return res.status(200).json({
       supabaseUrlConfigured: Boolean(supabase.url),
       supabaseServiceRoleConfigured: Boolean(supabase.serviceRoleKey),
-      resendConfigured: Boolean(envValue('RESEND_API_KEY')),
-      resendFromConfigured: Boolean(envValue('RESEND_FROM_EMAIL')),
-      resendTestMode: ['1','true','yes','on'].includes(envValue('RESEND_TEST_MODE').toLowerCase()),
-      resendTestRecipientConfigured: Boolean(envValue('RESEND_TEST_RECIPIENT')),
+      gmailSmtpConfigured: Boolean(envValue('GMAIL_SMTP_USER', 'SMTP_USER', 'GMAIL_USER') && envValue('GMAIL_SMTP_APP_PASSWORD', 'SMTP_PASS', 'GMAIL_APP_PASSWORD')),
+      gmailSmtpUserConfigured: Boolean(envValue('GMAIL_SMTP_USER', 'SMTP_USER', 'GMAIL_USER')),
+      gmailSmtpAppPasswordConfigured: Boolean(envValue('GMAIL_SMTP_APP_PASSWORD', 'SMTP_PASS', 'GMAIL_APP_PASSWORD')),
       appUrlConfigured: Boolean(envValue('APP_URL') || process.env.VERCEL_URL),
       adminSecretConfigured: admin.configured,
       missing: supabase.missing,
