@@ -19,6 +19,14 @@ function getFromEmail(): string {
   return envValue('RESEND_FROM_EMAIL');
 }
 
+function isResendTestMode(): boolean {
+  return ['1', 'true', 'yes', 'on'].includes(envValue('RESEND_TEST_MODE').toLowerCase());
+}
+
+function getResendTestRecipient(): string {
+  return envValue('RESEND_TEST_RECIPIENT');
+}
+
 function getAppUrl(): string {
   return envValue('APP_URL') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
 }
@@ -141,10 +149,52 @@ async function sendApproval(client: SupabaseClient, registrationId: string) {
   const verifyUrl = `${APP_URL}/verify?token=${encodeURIComponent(a.reg.verification_qr_token || a.reg.registration_number)}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(verifyUrl)}`;
   const html = `<!doctype html><html><body style="margin:0;background:#030905;color:#fff;font-family:Arial,sans-serif;padding:24px"><div style="max-width:620px;margin:auto;background:#06120a;border:1px solid #00ff66;border-radius:16px;padding:28px"><div style="color:#00ff66;font-weight:800;letter-spacing:2px">IGNITEX 2026</div><h1>Registration Approved</h1><p>Hello ${escapeHtml(p.full_name)}, your registration has been approved.</p><div style="background:#020a04;border:1px dashed #00ff66;border-radius:12px;padding:18px"><p><b>Registration ID:</b></p><div style="font-size:24px;font-weight:900;letter-spacing:3px;color:#00ff66">${escapeHtml(a.reg.registration_number)}</div><p><b>Amount:</b> ₹${Number(a.reg.payment_amount || 0)}</p>${teamsHtml}<h3>Events</h3><ul>${eventsHtml}</ul><img src="${qrUrl}" width="220" height="220" alt="Registration QR" style="display:block;margin:20px auto;background:#fff;padding:8px;border-radius:10px"/></div><p style="color:#aaa">Present this QR or your Registration ID at the event verification desk.</p></div></body></html>`;
-  const result = await resend.emails.send({ from: RESEND_FROM_EMAIL, to: p.email, subject: `IGNITEX 2026 — Registration Approved | ${a.reg.registration_number}`, html });
-  if (result.error) return { success: false, error: result.error.message };
-  try { await client.from('email_logs').insert({ registration_id: registrationId, recipient_email: p.email, recipient_name: p.full_name, subject: `IGNITEX 2026 — Registration Approved | ${a.reg.registration_number}`, email_type: 'REGISTRATION_APPROVED', resend_message_id: result.data?.id || null, status: 'SENT' }); } catch {}
-  return { success: true, messageId: result.data?.id };
+  const testMode = isResendTestMode();
+  const testRecipient = getResendTestRecipient();
+  if (testMode && !testRecipient) {
+    return { success: false, error: 'RESEND_TEST_MODE is enabled but RESEND_TEST_RECIPIENT is missing.' };
+  }
+
+  // Resend's unverified/testing setup can only deliver to the account owner's
+  // email. In production, disable RESEND_TEST_MODE and use a verified domain.
+  const recipient = testMode ? testRecipient : p.email;
+  const subject = `${testMode ? '[TEST] ' : ''}IGNITEX 2026 — Registration Approved | ${a.reg.registration_number}`;
+  const result = await resend.emails.send({
+    from: RESEND_FROM_EMAIL,
+    to: recipient,
+    subject,
+    html,
+  });
+
+  if (result.error) {
+    const message = String(result.error.message || 'Resend rejected the email.');
+    if (/only send testing emails to your own email|verify a domain|resend\.dev/i.test(message)) {
+      return {
+        success: false,
+        error: 'Resend is still in testing mode. Verify a domain in Resend and set RESEND_FROM_EMAIL to an address on that verified domain, or enable RESEND_TEST_MODE with RESEND_TEST_RECIPIENT set to your Resend account email for testing.',
+      };
+    }
+    return { success: false, error: message };
+  }
+
+  try {
+    await client.from('email_logs').insert({
+      registration_id: registrationId,
+      recipient_email: recipient,
+      recipient_name: testMode ? `${p.full_name} (TEST)` : p.full_name,
+      subject,
+      email_type: 'REGISTRATION_APPROVED',
+      resend_message_id: result.data?.id || null,
+      status: 'SENT',
+    });
+  } catch {}
+
+  return {
+    success: true,
+    messageId: result.data?.id,
+    testMode,
+    recipient,
+  };
 }
 
 export async function handleAdminRoute(req: any, res: any, forcedPath?: string) {
@@ -226,7 +276,7 @@ export async function handleAdminRoute(req: any, res: any, forcedPath?: string) 
       const {error:updateError}=await client.from('registrations').update({status:'APPROVED',payment_status:'VERIFIED',approved_at:new Date().toISOString(),verification_code:regNo,verification_qr_token:regNo}).eq('id',id);
       if(updateError) throw updateError;
       const email=await sendApproval(client,id);
-      return res.json({success:true,data:{message:email.success?'Registration approved and email sent.':`Registration approved, but email failed: ${email.error}`,registration_id:id,verification_code:regNo,email_sent:email.success}});
+      return res.json({success:true,data:{message:email.success ? (email.testMode ? `Registration approved. TEST email sent to ${email.recipient}.` : 'Registration approved and email sent.') : `Registration approved, but email failed: ${email.error}`,registration_id:id,verification_code:regNo,email_sent:email.success,email_test_mode:Boolean(email.testMode),email_recipient:email.recipient || null}});
     }
 
     if (req.method === 'POST' && path === 'reject-registration') {
@@ -240,7 +290,7 @@ export async function handleAdminRoute(req: any, res: any, forcedPath?: string) 
       if(error||!reg) return res.status(404).json({success:false,error:{code:'NOT_FOUND',message:'Registration not found.'}});
       if(!reg.verification_code||!reg.verification_qr_token) return res.status(409).json({success:false,error:{code:'NOT_APPROVED',message:'Approve the registration before sending the pass.'}});
       const result=await sendApproval(client,id); if(!result.success) return res.status(502).json({success:false,error:{code:'EMAIL_FAILED',message:result.error}});
-      return res.json({success:true,data:{message:'Pass email resent successfully.'}});
+      return res.json({success:true,data:{message:result.testMode ? `TEST pass email sent to ${result.recipient}.` : 'Pass email resent successfully.',email_test_mode:Boolean(result.testMode),email_recipient:result.recipient || null}});
     }
 
     if (req.method === 'GET' && path === 'participant-events') {
