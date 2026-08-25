@@ -8,6 +8,7 @@ type VercelResponse = {
   status(code: number): VercelResponse;
   json(body: unknown): VercelResponse;
   send(body: unknown): VercelResponse;
+  setHeader(name: string, value: string | number | readonly string[]): VercelResponse;
 };
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
