@@ -26,10 +26,8 @@ function envValue(...keys: string[]): string {
   return '';
 }
 
-const ADMIN_SECRET_KEY = envValue('ADMIN_SECRET_KEY', 'ADMIN_PASSWORD', 'ADMIN_PASSKEY', 'ADMIN_KEY');
-const LEGACY_ADMIN_KEY = '8f497bab15055497e0e870561ab2706b';
-const DEVELOPMENT_FALLBACK_KEY = 'doomsday_admin_2026';
-const VALID_ADMIN_KEYS = new Set([ADMIN_SECRET_KEY, LEGACY_ADMIN_KEY, DEVELOPMENT_FALLBACK_KEY].filter(Boolean));
+const ADMIN_SECRET_KEY = envValue('ADMIN_SECRET_KEY');
+const VALID_ADMIN_KEYS = ADMIN_SECRET_KEY ? new Set([ADMIN_SECRET_KEY]) : new Set<string>();
 const APP_URL = process.env.APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
 
 const supabase: SupabaseClient | null = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
