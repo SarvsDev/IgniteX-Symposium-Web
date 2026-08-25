@@ -131,7 +131,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       const response = await fetch('/api/admin/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ passcode: inputKey }),
+        body: JSON.stringify({ key: inputKey }),
       });
 
       const raw = await response.text();
