@@ -229,12 +229,12 @@ serve(async (req: Request) => {
 
     // 5. Calculate Server-Authoritative Price & Combo Discounts
     // Check if eligible for combo (e.g. combo-individual-all-access)
-    const soloSlugs = ['tech-profile-architect', 'tech-neural-rush', 'nontech-prompt-perfect', 'nontech-memergency'];
-    const isAllSoloCombo = dbEvents.length === 4 && dbEvents.every((e) => soloSlugs.includes(e.slug));
+    const soloSlugs = ['tech-profile-architect', 'nontech-prompt-perfect', 'nontech-memergency'];
+    const isAllSoloCombo = dbEvents.length === 3 && dbEvents.every((e) => soloSlugs.includes(e.slug));
     
     let totalCalculatedAmount = 0;
     if (isAllSoloCombo) {
-      totalCalculatedAmount = 500.00;
+      totalCalculatedAmount = 350.00;
     } else {
       totalCalculatedAmount = dbEvents.reduce((sum, e) => sum + Number(e.entry_fee), 0);
     }
@@ -312,7 +312,7 @@ serve(async (req: Request) => {
     const regEventsRows = dbEvents.map((ev) => ({
       registration_id: newReg.id,
       event_id: ev.id,
-      price_at_registration: isAllSoloCombo ? Math.round(500 / dbEvents.length) : Number(ev.entry_fee),
+      price_at_registration: isAllSoloCombo ? Math.round(350 / dbEvents.length) : Number(ev.entry_fee),
     }));
 
     const { error: regEventsError } = await supabase.from('registration_events').insert(regEventsRows);

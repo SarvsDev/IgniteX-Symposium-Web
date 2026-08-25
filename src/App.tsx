@@ -179,7 +179,7 @@ export default function App() {
                     className="flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 via-green-600 to-amber-500 text-black font-mono text-xs font-black hover:scale-105 transition-all shadow-[0_0_20px_rgba(0,255,102,0.4)]"
                   >
                     <Zap className="w-4 h-4 text-black" />
-                    <span>VIEW ALL 9 EVENTS (₹500 ALL-ACCESS PASS)</span>
+                    <span>VIEW ALL 9 EVENTS</span>
                   </button>
                 </div>
               </div>

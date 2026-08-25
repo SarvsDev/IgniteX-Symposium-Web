@@ -17,28 +17,26 @@ export interface EventCombo {
 export const COMBOS_DATA: EventCombo[] = [
   {
     id: 'combo-individual-all-access',
-    title: 'All Individual Events Access Pass',
-    tagline: 'All-access solo survivor pass unlocking all 4 individual technical & non-technical events.',
-    price: 500,
-    originalPrice: 600,
+    title: '3-Event Individual Access Pass',
+    tagline: 'All-access solo survivor pass unlocking 3 individual technical & non-technical events.',
+    price: 350,
+    originalPrice: 450,
     savings: 100,
     badge: 'ALL INDIVIDUAL EVENTS COMBO',
-    description: 'One single all-access pass for ₹500 that grants complete official entry to all four individual events across both days: Profile Architect, Neural Rush (Gen AI Clash), Prompt Perfect, and Memergency.',
+    description: 'One single all-access pass for ₹350 that grants complete official entry to three individual events across both days: Profile Architect, Prompt Perfect, and Memergency.',
     includedEventIds: [
       'tech-profile-architect',
-      'tech-neural-rush',
       'nontech-prompt-perfect',
       'nontech-memergency'
     ],
     includedEventTitles: [
       'Profile Architect (Tech - ₹150)',
-      'Neural Rush / Gen AI Clash (Tech - ₹150)',
       'Prompt Perfect (Non-Tech - ₹150)',
       'Memergency (Non-Tech - ₹150)'
     ],
     rules: [
-      'Valid for 1 individual attendee across all 4 individual event tracks.',
-      'Grants all-inclusive access to all 4 individual solo competitions for a single flat fee of ₹500 (Saves ₹100).',
+      'Valid for 1 individual attendee across all 3 individual event tracks.',
+      'Grants all-inclusive access to all 3 individual solo competitions for a single flat fee of ₹350 (Saves ₹100).',
       'Single QR Pass grants entry to all individual event arenas with refreshments included.',
       'Participation & Merit certificates awarded for each event completed.'
     ]
@@ -167,10 +165,10 @@ export const EVENTS_DATA: SymposiumEvent[] = [
     day: 'Day 1',
     time: '11:00 AM - 02:00 PM',
     venue: 'Seminar Hall II',
-    teamSize: 'Individual (1 Member)',
-    minTeamSize: 1,
-    maxTeamSize: 1,
-    entryFee: 150,
+    teamSize: '2 Members per Team',
+    minTeamSize: 2,
+    maxTeamSize: 2,
+    entryFee: 300,
     prizePool: '1st, 2nd & 3rd Cash Prizes + Winner Certificates',
     shortDescription: 'Multi-level challenge from Byte Rush quiz to AI Detective detection, AI Vault puzzles, and high-pressure finals.',
     fullDescription: 'Neural Rush (Gen AI Clash) is an individual technical quiz and challenge event conducted as part of IgniteX\'26. The event is designed to test participants\' knowledge of Artificial Intelligence, emerging technologies, logical thinking, observation skills, and ability to detect AI artifacts within strict time limits. Progress through four progressive levels from Byte Rush to high-pressure finals.',
