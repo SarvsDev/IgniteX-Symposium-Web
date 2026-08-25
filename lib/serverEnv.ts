@@ -9,8 +9,8 @@ export function envValue(...keys: string[]): string {
 }
 
 export function supabaseConfig() {
-  const url = envValue('SUPABASE_URL', 'VITE_SUPABASE_URL');
-  const serviceRoleKey = envValue('SUPABASE_SERVICE_ROLE_KEY');
+  const url = envValue('SUPABASE_URL', 'SUPABASE_URL_', 'VITE_SUPABASE_URL');
+  const serviceRoleKey = envValue('SUPABASE_SERVICE_ROLE_KEY', 'SUPABASE_SERVICE_ROLE_KEY_');
   const configured = Boolean(
     url.startsWith('http') &&
     serviceRoleKey &&

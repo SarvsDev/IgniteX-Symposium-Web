@@ -1,36 +1,53 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
+import { adminSecrets, envValue, supabaseConfig } from './serverEnv';
 
-const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
-const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || '';
-const ADMIN_SECRET_KEY = String(process.env.ADMIN_SECRET_KEY ?? '').trim();
-const VALID_ADMIN_KEYS = new Set([ADMIN_SECRET_KEY].filter(Boolean));
-const APP_URL = process.env.APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+function getSupabase(): SupabaseClient | null {
+  const { url, serviceRoleKey, configured } = supabaseConfig();
+  if (!configured) return null;
+  return createClient(url, serviceRoleKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+}
 
-const supabase: SupabaseClient | null = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
-  ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { autoRefreshToken: false, persistSession: false } })
-  : null;
+function getResend(): Resend | null {
+  const key = envValue('RESEND_API_KEY');
+  return key ? new Resend(key) : null;
+}
 
-const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
+function getFromEmail(): string {
+  return envValue('RESEND_FROM_EMAIL');
+}
+
+function getAppUrl(): string {
+  return envValue('APP_URL') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+}
 
 function text(v: unknown): string { return typeof v === 'string' ? v.trim() : ''; }
 function isAdmin(req: any): boolean {
+  const { allowed } = adminSecrets();
   const key = text(req.headers['x-admin-key']);
   const auth = text(req.headers.authorization);
   const bearer = auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';
-  return VALID_ADMIN_KEYS.has(key) || VALID_ADMIN_KEYS.has(bearer);
+  return allowed.has(key) || allowed.has(bearer);
 }
 function unauthorized(res: any) {
   return res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Invalid or missing admin key.' } });
 }
 function db(res: any): SupabaseClient | null {
-  if (!supabase) {
-    res.status(503).json({ success: false, error: { code: 'SUPABASE_NOT_CONFIGURED', message: 'Supabase server environment variables are missing.' } });
+  const config = supabaseConfig();
+  const client = getSupabase();
+  if (!client) {
+    res.status(503).json({
+      success: false,
+      error: {
+        code: 'SUPABASE_NOT_CONFIGURED',
+        message: `Supabase server environment variables are missing: ${config.missing.join(', ') || 'unknown configuration error'}.`,
+      },
+    });
     return null;
   }
-  return supabase;
+  return client;
 }
 function jsonBody(req: any): any {
   if (req.body && typeof req.body === 'object') return req.body;
@@ -112,12 +129,15 @@ function escapeHtml(v: unknown): string {
 }
 
 async function sendApproval(client: SupabaseClient, registrationId: string) {
+  const resend = getResend();
+  const RESEND_FROM_EMAIL = getFromEmail();
   if (!resend || !RESEND_FROM_EMAIL) return { success: false, error: 'RESEND_API_KEY or RESEND_FROM_EMAIL is missing.' };
   const a = await aggregate(client, registrationId);
   const p = a.reg.participants;
   if (!p?.email) return { success: false, error: 'Participant email not found.' };
   const eventsHtml = a.events.map((e: any) => `<li><strong>${escapeHtml(e.title)}</strong></li>`).join('');
   const teamsHtml = a.teams.length ? `<p><b>Team:</b> ${a.teams.map((t:any)=>escapeHtml(t.team_name)).join(', ')}</p>` : '';
+  const APP_URL = getAppUrl();
   const verifyUrl = `${APP_URL}/verify?token=${encodeURIComponent(a.reg.verification_qr_token || a.reg.registration_number)}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(verifyUrl)}`;
   const html = `<!doctype html><html><body style="margin:0;background:#030905;color:#fff;font-family:Arial,sans-serif;padding:24px"><div style="max-width:620px;margin:auto;background:#06120a;border:1px solid #00ff66;border-radius:16px;padding:28px"><div style="color:#00ff66;font-weight:800;letter-spacing:2px">IGNITEX 2026</div><h1>Registration Approved</h1><p>Hello ${escapeHtml(p.full_name)}, your registration has been approved.</p><div style="background:#020a04;border:1px dashed #00ff66;border-radius:12px;padding:18px"><p><b>Registration ID:</b></p><div style="font-size:24px;font-weight:900;letter-spacing:3px;color:#00ff66">${escapeHtml(a.reg.registration_number)}</div><p><b>Amount:</b> ₹${Number(a.reg.payment_amount || 0)}</p>${teamsHtml}<h3>Events</h3><ul>${eventsHtml}</ul><img src="${qrUrl}" width="220" height="220" alt="Registration QR" style="display:block;margin:20px auto;background:#fff;padding:8px;border-radius:10px"/></div><p style="color:#aaa">Present this QR or your Registration ID at the event verification desk.</p></div></body></html>`;
@@ -135,7 +155,8 @@ export async function handleAdminRoute(req: any, res: any, forcedPath?: string) 
     if (req.method === 'POST' && path === 'auth') {
       const key = text(jsonBody(req).passcode ?? jsonBody(req).passkey ?? jsonBody(req).key);
 
-      if (!VALID_ADMIN_KEYS.size) {
+      const { configured: adminConfigured, allowed: validAdminKeys } = adminSecrets();
+      if (!adminConfigured) {
         console.error('[Admin Auth] ADMIN_SECRET_KEY is missing from the deployment environment.');
         return res.status(500).json({
           success: false,
@@ -146,7 +167,7 @@ export async function handleAdminRoute(req: any, res: any, forcedPath?: string) 
         });
       }
 
-      if (!key || !VALID_ADMIN_KEYS.has(key)) {
+      if (!key || !validAdminKeys.has(key)) {
         return res.status(401).json({
           success: false,
           error: {
