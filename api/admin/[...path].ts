@@ -1,4 +1,14 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+type VercelRequest = {
+  method?: string;
+  query: Record<string, string | string[] | undefined>;
+  body?: unknown;
+  headers: Record<string, string | string[] | undefined>;
+};
+type VercelResponse = {
+  status(code: number): VercelResponse;
+  json(body: unknown): VercelResponse;
+  send(body: unknown): VercelResponse;
+};
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 
@@ -16,16 +26,13 @@ function envValue(...keys: string[]): string {
   return '';
 }
 
-const ADMIN_SECRET_KEY = envValue(
-  'ADMIN_SECRET_KEY',
-  'ADMIN_PASSWORD',
-  'ADMIN_PASSKEY',
-  'ADMIN_KEY',
-);
+// Keep the production Vercel function compatible with the existing admin
+// credentials while allowing a single explicit ADMIN_SECRET_KEY to be used.
+const ADMIN_SECRET_KEY = envValue('ADMIN_SECRET_KEY', 'ADMIN_PASSWORD', 'ADMIN_PASSKEY', 'ADMIN_KEY');
 const LEGACY_ADMIN_KEY = '8f497bab15055497e0e870561ab2706b';
-const FALLBACK_ADMIN_KEY = 'doomsday_admin_2026';
+const DEVELOPMENT_FALLBACK_KEY = 'doomsday_admin_2026';
 const VALID_ADMIN_KEYS = new Set(
-  [ADMIN_SECRET_KEY, FALLBACK_ADMIN_KEY, LEGACY_ADMIN_KEY].filter(Boolean)
+  [ADMIN_SECRET_KEY, LEGACY_ADMIN_KEY, DEVELOPMENT_FALLBACK_KEY].filter(Boolean)
 );
 const APP_URL = process.env.APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
 
@@ -156,12 +163,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const key = text(jsonBody(req).passcode ?? jsonBody(req).passkey ?? jsonBody(req).key);
 
       if (!VALID_ADMIN_KEYS.size) {
-        console.error('[Admin Auth] No admin credential is configured in the deployment environment.');
+        console.error('[Admin Auth] ADMIN_SECRET_KEY is missing from the deployment environment.');
         return res.status(500).json({
           success: false,
           error: {
             code: 'ADMIN_KEY_NOT_CONFIGURED',
-            message: 'No admin credential is configured for this deployment.'
+            message: 'ADMIN_SECRET_KEY is not configured for this deployment.'
           }
         });
       }

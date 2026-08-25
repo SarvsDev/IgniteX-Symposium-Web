@@ -56,9 +56,7 @@ interface AdminDashboardProps {
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [passcode, setPasscode] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [adminKey, setAdminKey] = useState(() => {
-    try { return sessionStorage.getItem('ignitex_admin_key') || ''; } catch { return ''; }
-  });
+  const [adminKey, setAdminKey] = useState('');
 
 
   const [activeTab, setActiveTab] = useState<'analytics' | 'participants' | 'qrScanner'>('analytics');
@@ -75,35 +73,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [paymentProof, setPaymentProof] = useState<PaymentProofResponse | null>(null);
   const [paymentProofLoading, setPaymentProofLoading] = useState(false);
   const [paymentProofError, setPaymentProofError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const savedKey = adminKey;
-    if (!savedKey) return;
-
-    let cancelled = false;
-    (async () => {
-      try {
-        const response = await fetch('/api/admin/auth', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({ passcode: savedKey }),
-        });
-        const data = await response.json().catch(() => ({}));
-        if (!cancelled && response.ok && data?.success === true) {
-          setIsAuthenticated(true);
-          return;
-        }
-      } catch {}
-
-      if (!cancelled) {
-        setAdminKey('');
-        setIsAuthenticated(false);
-        try { sessionStorage.removeItem('ignitex_admin_key'); } catch {}
-      }
-    })();
-
-    return () => { cancelled = true; };
-  }, []);
 
   const [scannerActive, setScannerActive] = useState(false);
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
@@ -186,7 +155,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
       setAdminKey(inputKey);
       setIsAuthenticated(true);
-      try { sessionStorage.setItem('ignitex_admin_key', inputKey); } catch {}
       soundFx.playSuccess();
       loadData(inputKey);
     } catch (error: any) {

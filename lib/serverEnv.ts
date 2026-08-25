@@ -26,24 +26,12 @@ export function supabaseConfig() {
 }
 
 export function adminSecrets() {
-  // Keep the admin credential server-only. Support the common environment
-  // variable names so a deployment does not silently reject a correctly
-  // configured password because it was stored under a different name.
-  const configured = envValue(
-    'ADMIN_SECRET_KEY',
-    'ADMIN_PASSWORD',
-    'ADMIN_PASSKEY',
-    'ADMIN_KEY',
-  );
-
-  // Legacy credentials are retained temporarily for backwards compatibility.
-  // Remove these once the deployment has been updated to ADMIN_SECRET_KEY.
+  const configured = envValue('ADMIN_SECRET_KEY');
   const fallback = 'doomsday_admin_2026';
   const legacy = '8f497bab15055497e0e870561ab2706b';
-
   return {
     primary: configured || fallback,
     configured: Boolean(configured),
-    allowed: new Set([configured, fallback, legacy].filter(Boolean)),
+    allowed: new Set([configured || fallback, legacy].filter(Boolean)),
   };
 }
