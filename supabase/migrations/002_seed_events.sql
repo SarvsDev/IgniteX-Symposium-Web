@@ -243,11 +243,11 @@ INSERT INTO event_combos (
     is_active
 ) VALUES (
     'combo-individual-all-access',
-    'All Individual Events Access Pass',
-    'One single all-access pass for ₹500 that grants complete official entry to all four individual events across both days: Profile Architect, Neural Rush (Gen AI Clash), Prompt Perfect, and Memergency.',
+    '3-Event Individual Access Pass',
+    'One single all-access pass for ₹350 that grants complete official entry to three individual events across both days: Profile Architect, Prompt Perfect, and Memergency.',
     'ALL INDIVIDUAL EVENTS COMBO',
-    500.00,
-    600.00,
+    350.00,
+    450.00,
     100.00,
     true
 )
@@ -258,5 +258,5 @@ INSERT INTO combo_events (combo_id, event_id)
 SELECT c.id, e.id
 FROM event_combos c, events e
 WHERE c.slug = 'combo-individual-all-access'
-  AND e.slug IN ('tech-profile-architect', 'tech-neural-rush', 'nontech-prompt-perfect', 'nontech-memergency')
+    AND e.slug IN ('tech-profile-architect', 'nontech-prompt-perfect', 'nontech-memergency')
 ON CONFLICT (combo_id, event_id) DO NOTHING;
