@@ -462,7 +462,7 @@ app.post('/api/register', async (req, res) => {
     });
   } catch (error: any) {
     console.error('[POST /api/register]', error);
-    res.status(500).json({ success: false, error: { code: 'REGISTRATION_FAILED', message: error.message || 'Registration failed.' } });
+    res.status(500).json({ success: false, error: { code: 'REGISTRATION_FAILED', message: error?.message || 'Registration failed.', details: process.env.NODE_ENV === 'production' ? undefined : String(error?.stack || '') } });
   }
 });
 
