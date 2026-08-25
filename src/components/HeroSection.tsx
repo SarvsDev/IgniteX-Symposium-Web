@@ -88,7 +88,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               <p className="text-lg sm:text-2xl font-mono font-bold text-amber-300/90 tracking-wide uppercase flex items-center gap-2">
                 <span>IGNITE YOUR POTENTIAL</span>
                 <span className="text-emerald-400">•</span>
-                <span className="text-emerald-400">NOV 14 - 15</span>
+                <span className="text-emerald-400">SEP 9 - 10, 2026</span>
               </p>
             </div>
 
