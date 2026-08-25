@@ -55,8 +55,12 @@ interface AdminDashboardProps {
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [passcode, setPasscode] = useState('');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [adminKey, setAdminKey] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    try { return Boolean(sessionStorage.getItem('ignitex_admin_key')); } catch { return false; }
+  });
+  const [adminKey, setAdminKey] = useState(() => {
+    try { return sessionStorage.getItem('ignitex_admin_key') || ''; } catch { return ''; }
+  });
 
 
   const [activeTab, setActiveTab] = useState<'analytics' | 'participants' | 'qrScanner'>('analytics');
@@ -154,6 +158,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       }
 
       setAdminKey(inputKey);
+      try { sessionStorage.setItem('ignitex_admin_key', inputKey); } catch {}
       setIsAuthenticated(true);
       soundFx.playSuccess();
       loadData(inputKey);
