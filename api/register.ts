@@ -3,6 +3,10 @@ import { randomBytes } from 'node:crypto';
 import { z } from 'zod';
 import { supabaseConfig } from '../lib/serverEnv';
 
+// Registration performs several database/storage operations. Keep the Vercel
+// function alive long enough for the full transaction to complete.
+export const maxDuration = 60;
+
 
 const registrationSchema = z.object({
   participant: z.object({
