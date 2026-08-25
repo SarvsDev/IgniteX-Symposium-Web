@@ -456,8 +456,8 @@ export function MultiEventRegisterPage({
                     <span className="text-neutral-300">{reg.receiptNumber}</span>
                   </div>
                   <div>
-                    <span className="text-neutral-500 block text-[10px]">TIMING / VENUE</span>
-                    <span className="text-neutral-300">{reg.eventDay} • {reg.eventVenue}</span>
+                    <span className="text-neutral-500 block text-[10px]">VENUE</span>
+                    <span className="text-neutral-300">{reg.eventVenue}</span>
                   </div>
                   <div>
                     <span className="text-neutral-500 block text-[10px]">SQUAD</span>
@@ -946,10 +946,6 @@ export function MultiEventRegisterPage({
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3 h-3 text-emerald-400" />
                           <span>{event.day}</span>
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3 text-amber-400" />
-                          <span>{event.time}</span>
                         </span>
                         <span className="flex items-center gap-1">
                           <Trophy className="w-3 h-3 text-yellow-400" />

@@ -17,7 +17,6 @@ import { EventCard } from './components/EventCard';
 import { EventDetailModal } from './components/EventDetailModal';
 import { TicketPassModal } from './components/TicketPassModal';
 import { AdminDashboard } from './components/AdminDashboard';
-import { ScheduleTimeline } from './components/ScheduleTimeline';
 import { SurvivalProtocol } from './components/SurvivalProtocol';
 import { ParticipantDetailsModal } from './components/ParticipantDetailsModal';
 import { MultiEventRegisterPage } from './components/MultiEventRegisterPage';
@@ -46,7 +45,7 @@ export default function App() {
   const [userRegistrations, setUserRegistrations] = useState<Registration[]>(() => {
     return getStoredRegistrations();
   });
-  const [activeSection, setActiveSection] = useState<'home' | 'tech-events' | 'non-tech-events' | 'events' | 'timeline' | 'protocol' | 'register'>('home');
+  const [activeSection, setActiveSection] = useState<'home' | 'tech-events' | 'non-tech-events' | 'events' | 'protocol' | 'register'>('home');
   const [soundEnabled, setSoundEnabled] = useState(true);
 
   // Modals
@@ -194,28 +193,6 @@ export default function App() {
               </div>
             </section>
 
-            {/* Animated Timeline of Event Timings on Landing Page */}
-            <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-              <div className="text-center space-y-2">
-                <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-widest flex items-center justify-center gap-1">
-                  <Crown className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>ANIMATED EVENT TIMINGS TIMELINE // 2 DAYS</span>
-                </span>
-                <h2 className="text-2xl sm:text-4xl font-mono font-black text-white uppercase tracking-tight">
-                  IGNITEX SYMPOSIUM SCHEDULE
-                </h2>
-                <p className="text-xs sm:text-sm text-neutral-300 font-sans max-w-xl mx-auto">
-                  Interactive real-time event schedule. Click any slot to review event rules or mint your entry pass.
-                </p>
-              </div>
-
-              <ScheduleTimeline
-                events={events}
-                onSelectEvent={(e) => setSelectedEventDetails(e)}
-                onRegisterEvent={openMultiEventRegistration}
-              />
-            </section>
-
             {/* Survival Protocol Rules Overview */}
             <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
               <div className="text-center space-y-2">
@@ -249,27 +226,6 @@ export default function App() {
             onSelectEvent={(e) => setSelectedEventDetails(e)}
             onQuickRegister={openMultiEventRegistration}
           />
-        )}
-
-        {/* VIEW 5: DEDICATED TIMELINE SCHEDULER */}
-        {activeSection === 'timeline' && (
-          <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 animate-fadeIn">
-            <div className="text-center space-y-2">
-              <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-widest flex items-center justify-center gap-1">
-                <Crown className="w-3.5 h-3.5 text-emerald-400" />
-                <span>2-DAY QUANTUM SCHEDULE</span>
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-mono font-black text-white uppercase">
-                IGNITEX '26 EVENT TIMINGS
-              </h2>
-            </div>
-
-            <ScheduleTimeline
-              events={events}
-              onSelectEvent={(e) => setSelectedEventDetails(e)}
-              onRegisterEvent={openMultiEventRegistration}
-            />
-          </section>
         )}
 
         {/* VIEW 6: SURVIVAL PROTOCOL MANUAL */}
