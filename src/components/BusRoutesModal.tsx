@@ -35,16 +35,16 @@ export const BusRoutesModal: React.FC<BusRoutesModalProps> = ({ onClose }) => {
     const no = route.routeNo.toUpperCase();
 
     if (category === 'CHENNAI') {
-      return ['VILLIVAKKAM', 'KOYAMBEDU', 'THIRUVETRIUR', 'GUMUDIPOONDI'].some(k => name.includes(k) || no.includes('6') || no.includes('7'));
+      return ['route-6', 'route-7', 'route-7a', 'route-7b'].includes(route.id);
     }
     if (category === 'SOUTH_GST') {
-      return ['MAHENDRA CITY', 'KOVILAMBAKKAM', 'MAIN CAMPUS', 'MADHURANTHAGAM', 'MAHURAANTHAGAM'].some(k => name.includes(k) || no.includes('5') || no.includes('8') || no.includes('9'));
+      return ['route-5', 'route-5a', 'route-8', 'route-9'].includes(route.id);
     }
     if (category === 'WEST_THIRUVALLUR') {
-      return ['THIRUTHANI', 'UTHUKOTTAI', 'VALLIYURE', 'SRIPERUMBUDUR', 'PERAMBAKKAM'].some(k => name.includes(k) || no.includes('3') || no.includes('4') || no.includes('10'));
+      return ['route-3', 'route-4', 'route-4a', 'route-10', 'route-10a'].includes(route.id);
     }
     if (category === 'KANCHI_VELLORE') {
-      return ['KALAVAI', 'UTHIRAMERUR', 'CHEYYAR', 'SENTHAMANGALAM', 'GUDIYATHAM', 'ARANI'].some(k => name.includes(k) || no.includes('1') || no.includes('2'));
+      return ['route-1', 'route-1a', 'route-1b', 'route-1c', 'route-1d', 'route-2', 'route-2a'].includes(route.id);
     }
     return true;
   };
@@ -62,15 +62,16 @@ export const BusRoutesModal: React.FC<BusRoutesModalProps> = ({ onClose }) => {
       const inPath = r.routePath.toLowerCase().includes(q);
       const inDriver = r.driverName.toLowerCase().includes(q);
       const inPhone = r.driverPhone.includes(q);
+      const inVehicle = r.vehicleNumber.toLowerCase().includes(q);
       const inStops = r.stops.some(s => s.toLowerCase().includes(q));
 
-      return inNo || inName || inPath || inDriver || inPhone || inStops;
+      return inNo || inName || inPath || inDriver || inPhone || inVehicle || inStops;
     });
   }, [searchQuery, activeCategory]);
 
   const handleCopy = (route: BusRoute) => {
     soundFx.playClick();
-    const text = `${route.routeNo} (${route.routeName})\nPath: ${route.routePath}\nDriver: ${route.driverName} - ${route.driverPhone}`;
+    const text = `${route.routeNo} (${route.routeName})\nVehicle: ${route.vehicleNumber}\nPath: ${route.routePath}\nDriver: ${route.driverName} - ${route.driverPhone}`;
     navigator.clipboard.writeText(text);
     setCopiedRouteId(route.id);
     setTimeout(() => setCopiedRouteId(null), 2000);
@@ -86,7 +87,7 @@ export const BusRoutesModal: React.FC<BusRoutesModalProps> = ({ onClose }) => {
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-xs font-mono font-bold text-amber-400 uppercase tracking-widest">
                 <Bus className="w-4 h-4 text-emerald-400" />
-                <span>SATHYABAMA TRANSPORT NETWORK • 19 ACTIVE ROUTES</span>
+                <span>SATHYABAMA TRANSPORT NETWORK • 20 ACTIVE ROUTES</span>
               </div>
               <h2 className="text-xl sm:text-2xl font-mono font-black text-white uppercase tracking-tight flex items-center gap-2">
                 <span>OFFICIAL COLLEGE BUS SCHEDULE</span>
@@ -119,7 +120,7 @@ export const BusRoutesModal: React.FC<BusRoutesModalProps> = ({ onClose }) => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by area, boarding point (e.g. Porur, Avadi, Kanchi, Vellore, Guindy), route number, or driver..."
+                placeholder="Search by area, boarding point, route number, vehicle number, or driver..."
                 className="w-full pl-10 pr-10 py-3 rounded-xl bg-black/80 border border-emerald-800/80 focus:border-emerald-400 text-white placeholder-neutral-500 text-xs font-mono outline-none transition-all shadow-inner"
               />
               {searchQuery && (
@@ -282,6 +283,10 @@ export const BusRoutesModal: React.FC<BusRoutesModalProps> = ({ onClose }) => {
                             <Copy className="w-3.5 h-3.5" />
                           )}
                         </button>
+                      </div>
+
+                      <div className="mt-2 inline-flex items-center px-2 py-1 rounded-md bg-neutral-900 border border-neutral-700 text-[10px] font-mono uppercase text-neutral-300">
+                        Vehicle: {route.vehicleNumber}
                       </div>
 
                       <h3 className="text-base font-mono font-black text-amber-300 uppercase tracking-tight mt-2 flex items-center gap-1.5">

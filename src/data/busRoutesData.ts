@@ -2,6 +2,7 @@ export interface BusRoute {
   id: string;
   sNo: number;
   routeNo: string;
+  vehicleNumber: string;
   routeName: string;
   routePath: string;
   stops: string[];
@@ -10,194 +11,24 @@ export interface BusRoute {
 }
 
 export const BUS_ROUTES_DATA: BusRoute[] = [
-  {
-    id: 'route-1',
-    sNo: 1,
-    routeNo: 'Route No : 1',
-    routeName: 'KALAVAI',
-    routePath: 'KALAVAI, KALAVAI KOOTROAD, RAANTHAM KOOTROAD, PERUNGATTUR, VENPAKKAM, IYANGARKULAM KOOTROAD, SEVILIMEDU, KANCHIPURAM, CAMPUS',
-    stops: ['Kalavai', 'Kalavai Kootroad', 'Raantham Kootroad', 'Perungattur', 'Venpakkam', 'Iyangarkulam Kootroad', 'Sevilimedu', 'Kanchipuram', 'Campus'],
-    driverName: 'Mr. Boobalan',
-    driverPhone: '9952155632'
-  },
-  {
-    id: 'route-1a',
-    sNo: 2,
-    routeNo: 'Route No : 1A',
-    routeName: 'UTHIRAMERUR',
-    routePath: 'UTHIRAMERUR, MAANAMADHIKOOTROAD, MAAGARAL, ORIKKAI, RANGHASWAMY KULAM, WALAJABAD, CAMPUS',
-    stops: ['Uthiramerur', 'Maanamadhi Kootroad', 'Maagaral', 'Orikkai', 'Ranghaswamy Kulam', 'Walajabad', 'Campus'],
-    driverName: 'Mr. Akbar',
-    driverPhone: '9092661939'
-  },
-  {
-    id: 'route-1b',
-    sNo: 3,
-    routeNo: 'Route No : 1B',
-    routeName: 'CHEYYAR',
-    routePath: 'CHEYYAR, MAANGALKOOTROAD, SEVILIMEDU, COLLECTOR OFFICE, THALUK OFFICE, CAMPUS',
-    stops: ['Cheyyar', 'Maangal Kootroad', 'Sevilimedu', 'Collector Office', 'Taluk Office', 'Campus'],
-    driverName: 'Mr. Mani',
-    driverPhone: '9698757459'
-  },
-  {
-    id: 'route-1c',
-    sNo: 4,
-    routeNo: 'Route No : 1C',
-    routeName: 'SENTHAMANGALAM',
-    routePath: 'SENTHAMANGALAM, THIRUMALPUR RAILWAY STATION, VELLAI GATE, GORI, GUJARATHI CHATHIRAM, CHITHRAGUPTHAR KOIL, POOKADAI CHATHIRAM, KAMMALA THERU, PARANDHUR EGANAAPURAM, MADHURAMANGALAM, KAANDHUR, CAMPUS',
-    stops: ['Senthamangalam', 'Thirumalpur Railway Station', 'Vellai Gate', 'Gori', 'Gujarathi Chathiram', 'Chithragupthar Koil', 'Pookadai Chathiram', 'Kammala Theru', 'Parandhur Eganaapuram', 'Madhuramangalam', 'Kaandhur', 'Campus'],
-    driverName: 'Mr. Muralidharan',
-    driverPhone: '8098179728'
-  },
-  {
-    id: 'route-2',
-    sNo: 5,
-    routeNo: 'Route No : 2',
-    routeName: 'GUDIYATHAM',
-    routePath: 'GUDIYATHAM, VELLORE, KAVERIPAAKAM, OCHERI, BALUCHETTICHATHIRAM, VELLAI GATE, CAMPUS',
-    stops: ['Gudiyatham', 'Vellore', 'Kaveripaakam', 'Ocheri', 'Baluchettichathiram', 'Vellai Gate', 'Campus'],
-    driverName: 'Mr. Balaji',
-    driverPhone: '9445941487'
-  },
-  {
-    id: 'route-2a',
-    sNo: 6,
-    routeNo: 'Route No : 2A',
-    routeName: 'ARANI',
-    routePath: 'ARANI, THIMIRI, ARCOT, RANIPETTAI, WALAJAPETTAI, KILAMBI, GORI, VELLAI GATE, CAMPUS',
-    stops: ['Arani', 'Thimiri', 'Arcot', 'Ranipettai', 'Walajapettai', 'Kilambi', 'Gori', 'Vellai Gate', 'Campus'],
-    driverName: 'Mr. Mathavan R',
-    driverPhone: '9994525363'
-  },
-  {
-    id: 'route-3',
-    sNo: 7,
-    routeNo: 'Route No : 3',
-    routeName: 'THIRUTHANI',
-    routePath: 'THIRUTHANI, THIRUTHANI RAILWAY STATION, ARAKKONAM, THAKKOLAMKOOTROAD, THAKKOLAM, SR-GATE PERAMPAAKAM, MAPPEDU, VAYALUR, CAMPUS',
-    stops: ['Thiruthani', 'Thiruthani Railway Station', 'Arakkonam', 'Thakkolam Kootroad', 'Thakkolam', 'SR-Gate Perampaakam', 'Mappedu', 'Vayalur', 'Campus'],
-    driverName: 'Mr. Dhandapani',
-    driverPhone: '9597826775'
-  },
-  {
-    id: 'route-4',
-    sNo: 8,
-    routeNo: 'Route No : 4',
-    routeName: 'UTHUKOTTAI',
-    routePath: 'UTHUKOTTAI, UTHUKOTTAI BUS STAND, KAANCHUR, SEDHANCHERI, POONDI, THIRUPAACHIUR, KADAMPATHUR, PERAMPAAKAM, ULUNDAI, CAMPUS',
-    stops: ['Uthukottai', 'Uthukottai Bus Stand', 'Kaanchur', 'Sedhancheri', 'Poondi', 'Thirupaachiur', 'Kadampathur', 'Perampaakam', 'Ulundai', 'Campus'],
-    driverName: 'Mr. Nadhamuni',
-    driverPhone: '7845924523'
-  },
-  {
-    id: 'route-4a',
-    sNo: 9,
-    routeNo: 'Route No : 4A',
-    routeName: 'VALLIYURE',
-    routePath: 'KILAANOOR, THIRUVALLUR THERADI, POOKKADAI, POST OFFICE, OIL MIL, MANAVALANAGAR, NALLAATHUR, POLIVAKKAM, KAATTU KOOTROAD, CAMPUS',
-    stops: ['Kilaanoor', 'Thiruvallur Theradi', 'Pookkadai', 'Post Office', 'Oil Mil', 'Manavalanagar', 'Nallaathur', 'Polivakkam', 'Kaattu Kootroad', 'Campus'],
-    driverName: 'Mr. Vinothkumar',
-    driverPhone: '9942364268'
-  },
-  {
-    id: 'route-5',
-    sNo: 10,
-    routeNo: 'Route No : 5',
-    routeName: 'MADHURANTHAGAM',
-    routePath: 'MADHURAANTHAGAM, KARUNGULI, PADALAM, CHENGALPATTU GH, RAATINAKINARU, CHENGALPATTU IYAPPAN KOIL, KOOTROAD, PAALLUR, WALAJABAD, KUNNAVAKKAM, ORAGADAM, SPD HIGH SCHOOL, CAMPUS',
-    stops: ['Madhuranthagam', 'Karunguli', 'Padalam', 'Chengalpattu GH', 'Raatinakinaru', 'Chengalpattu Iyappan Koil', 'Kootroad', 'Paallur', 'Walajabad', 'Kunnavakkam', 'Oragadam', 'SPD High School', 'Campus'],
-    driverName: 'Mr. Nayagam',
-    driverPhone: '9585178253'
-  },
-  {
-    id: 'route-5a',
-    sNo: 11,
-    routeNo: 'Route No : 5A',
-    routeName: 'MAHENDRA CITY',
-    routePath: 'MAHENDRA CITY, MARAIMALAINAGAR, PUTHERI, GUDUVANCHERI, KILAMPAAKAM, VANDALUR, MANNIVAKKAM, PADAIPPAI, ORAGADAM, SPD HIGH SCHOOL, CAMPUS',
-    stops: ['Mahendra City', 'Maraimalainagar', 'Putheri', 'Guduvancheri', 'Kilampaakam', 'Vandalur', 'Mannivakkam', 'Padaippai', 'Oragadam', 'SPD High School', 'Campus'],
-    driverName: 'Mr. Abdul',
-    driverPhone: '9488611955'
-  },
-  {
-    id: 'route-6',
-    sNo: 12,
-    routeNo: 'Route No : 6',
-    routeName: 'GUMUDIPOONDI',
-    routePath: 'GUMUDIPOONDI, KAVARAI PETTAI, THACHUR KOOTROAD, KAARANODAI, REDHILLS, PUYAL, KALLIKUPPAM, AMPATHUR, RAAKKI THEATER, THIRUMULLAI VAYIL, AVADI, PATTABIRAAM, THIRUNINDRAVUR, VEPPAMPATTU, KAALKALUR, MANAVALANAGAR, KATTU KOOTROAD, CAMPUS',
-    stops: ['Gumudipoondi', 'Kavarai Pettai', 'Thachur Kootroad', 'Kaaranodai', 'Redhills', 'Puyal', 'Kallikuppam', 'Ampathur', 'Raakki Theater', 'Thirumullai Vayil', 'Avadi', 'Pattabiraam', 'Thirunindravur', 'Veppampattu', 'Kaalkalur', 'Manavalanagar', 'Kattu Kootroad', 'Campus'],
-    driverName: 'Mr. Rajesh',
-    driverPhone: '9003426874'
-  },
-  {
-    id: 'route-7',
-    sNo: 13,
-    routeNo: 'Route No : 7',
-    routeName: 'VILLIVAKKAM',
-    routePath: 'VILLIVAAKAM, RETTERI, THIRUMANGALAM, PAADI BRIDGE, ANNANAGAR, GOLDEN FLAT, NOLAMBUR, MADHURAVAYAL, VANAGARAM, POONAMALLI, THANDALAM, MUGAPERU, CETTIPETTEDU, IRUNGATTU KOTTAI, SRIPERUBUDUR, CAMPUS',
-    stops: ['Villivakkam', 'Retteri', 'Thirumangalam', 'Paadi Bridge', 'Annanagar', 'Golden Flat', 'Nolambur', 'Madhuravayal', 'Vanagaram', 'Poonamalli', 'Thandalam', 'Mugaperu', 'Cettipettedu', 'Irungattu Kottai', 'Sriperumbudur', 'Campus'],
-    driverName: 'Mr. Magesh',
-    driverPhone: '9043807080'
-  },
-  {
-    id: 'route-7a',
-    sNo: 14,
-    routeNo: 'Route No : 7A',
-    routeName: 'KOYAMBEDU',
-    routePath: 'KOYAMBEDU, VADAPALANI, ASHOKEPILAR, PONDICHERRY GUST HOUSE, VALASARVAKKAM, KESAVARTHINI, PORUR, BOY KADAI, KUNDRATHUR, SRIPERUMBUDUR, CAMPUS',
-    stops: ['Koyambedu', 'Vadapalani', 'Ashok Pillar', 'Pondicherry Guest House', 'Valasarvakkam', 'Kesavarthini', 'Porur', 'Boy Kadai', 'Kundrathur', 'Sriperumbudur', 'Campus'],
-    driverName: 'Mr. Anbu',
-    driverPhone: '9150469505'
-  },
-  {
-    id: 'route-7b',
-    sNo: 15,
-    routeNo: 'Route No : 7B',
-    routeName: 'THIRUVETRIUR',
-    routePath: 'THIRUVETRIUR, MANALI, VANNARAPETTAI, PARIS, MOUNT ROAD, GEMINI FLYOVER, TEYNAMPET, SAIDAPET, GINDY, KATHIPARAI, MANAPAKKAM, PORUR, KATUPAKKAM, POONDAMALI, THANDALAM, KATU KOOT ROAD, CAMPUS',
-    stops: ['Thiruvetriur', 'Manali', 'Vannarpettai', 'Paris Corner', 'Mount Road', 'Gemini Flyover', 'Teynampet', 'Saidapet', 'Guindy', 'Kathiparai', 'Manapakkam', 'Porur', 'Katupakkam', 'Poondamalli', 'Thandalam', 'Katu Koot Road', 'Campus'],
-    driverName: 'Mr. Sathish',
-    driverPhone: '7845456431'
-  },
-  {
-    id: 'route-8',
-    sNo: 16,
-    routeNo: 'Route No : 8',
-    routeName: 'KOVILAMBAKKAM',
-    routePath: 'KOVILAMBAKKAM, KAMACHI HOSPITAL, MADIPAKKAM, NANGANALUR, PALLAVARAM, PAMBAL, ANAGAPUDHUR, KARANUR, SOMAMNGALAM, SPD, CAMPUS',
-    stops: ['Kovilambakkam', 'Kamachi Hospital', 'Madipakkam', 'Nanganallur', 'Pallavaram', 'Pammal', 'Anagaputhur', 'Karanur', 'Somangalam', 'SPD', 'Campus'],
-    driverName: 'Mr. Ragu',
-    driverPhone: '8940356669'
-  },
-  {
-    id: 'route-9',
-    sNo: 17,
-    routeNo: 'Route No : 9',
-    routeName: 'MAIN CAMPUS',
-    routePath: 'PADUR, NAVALUR, KELAMBAKKAM, KANDIGAI, MAMBAKKAM, VANDALUR, TAMBARAM BRIGE, MANIMANGALAM, JK TYE, SPD HIGH SCHOOL, CAMPUS',
-    stops: ['Padur', 'Navalur', 'Kelambakkam', 'Kandigai', 'Mambakkam', 'Vandalur', 'Tambaram Bridge', 'Manimangalam', 'JK Tyre', 'SPD High School', 'Campus'],
-    driverName: 'Mr. Manikandan',
-    driverPhone: '8939093763'
-  },
-  {
-    id: 'route-10',
-    sNo: 18,
-    routeNo: 'Route No : 10',
-    routeName: 'SRIPERUMBUDUR',
-    routePath: 'AN KANDIGAI, POTHU KOVIL, SRIPERMUBUDUR, HIGH SCHOOL, VADAMANGALAM, CAMPUS',
-    stops: ['An Kandigai', 'Pothu Kovil', 'Sriperumbudur', 'High School', 'Vadamangalam', 'Campus'],
-    driverName: 'Mr. Selvam',
-    driverPhone: '8608054301'
-  },
-  {
-    id: 'route-10a',
-    sNo: 19,
-    routeNo: 'Route No : 10A',
-    routeName: 'PERAMBAKKAM',
-    routePath: 'PERAMBAKKAM, MAPEDU, PANNUR, SONGANDI, SUNGUVACHTHIRAM, VADAMANGALAM, CAMPUS',
-    stops: ['Perambakkam', 'Mappedu', 'Pannur', 'Songandi', 'Sunguvarchatram', 'Vadamangalam', 'Campus'],
-    driverName: 'Mr. G Kumar',
-    driverPhone: '8667762585'
-  }
+  { id: 'route-1', sNo: 1, routeNo: 'Route No : 1', vehicleNumber: 'TN 14 AP 8574', routeName: 'KALAVAI', routePath: 'KALAVAI, KALAVAI KOOTROAD, RAANTHAM KOOTROAD, PERUNGATTUR, VENPAKKAM, IYANGARKULAM KOOTROAD, SEVILIMEDU, KANCHIPURAM, CAMPUS', stops: ['Kalavai', 'Kalavai Kootroad', 'Raantham Kootroad', 'Perungattur', 'Venpakkam', 'Iyangarkulam Kootroad', 'Sevilimedu', 'Kanchipuram', 'Campus'], driverName: 'Mr. Boobalan', driverPhone: '9952155632' },
+  { id: 'route-1a', sNo: 2, routeNo: 'Route No : 1A', vehicleNumber: 'TN 14 AP 8871', routeName: 'UTHIRAMERUR', routePath: 'UTHIRAMERUR, MAANAMADHIKOOTROAD, MAAGARAL, ORIKKAI, RANGHASWAMY KULAM, WALAJABAD, CAMPUS', stops: ['Uthiramerur', 'Maanamadhi Kootroad', 'Maagaral', 'Orikkai', 'Ranghaswamy Kulam', 'Walajabad', 'Campus'], driverName: 'Mr. Akbar', driverPhone: '9092661939' },
+  { id: 'route-1b', sNo: 3, routeNo: 'Route No : 1B', vehicleNumber: 'TN 14 AP 8907', routeName: 'CHEYYAR', routePath: 'CHEYYAR, MAANGALKOOTROOD, SEVILIMEDU, COLLECTOR OFFICE, THALUK OFFICE, CAMPUS', stops: ['Cheyyar', 'Maangal Kootroad', 'Sevilimedu', 'Collector Office', 'Thaluk Office', 'Campus'], driverName: 'Mr. Mani', driverPhone: '9698757459' },
+  { id: 'route-1c', sNo: 4, routeNo: 'Route No : 1C', vehicleNumber: 'TN 14 AP 8970', routeName: 'SENTHAMANGALAM', routePath: 'SENTHAMANGALAM, THIRUMALPUR RAILWAY STATION, VELLAI GATE, GORI, GUJARATHI CHATHIRAM, CHITHRAGUPTHAR KOIL, POOKADAI CHATHIRAM, KAMMALA THERU, PARANDHUR, EGANAAPURAM, MADHURAMANGALAM, KAANDHUR, CAMPUS', stops: ['Senthamangalam', 'Thirumalpur Railway Station', 'Vellai Gate', 'Gori', 'Gujarathi Chathiram', 'Chithragupthar Koil', 'Pookadai Chathiram', 'Kammala Theru', 'Parandhur', 'Eganaapuram', 'Madhuramangalam', 'Kaandhur', 'Campus'], driverName: 'Mr. Muralidharan', driverPhone: '8098179728' },
+  { id: 'route-1d', sNo: 5, routeNo: 'Route No : 1D', vehicleNumber: 'TN 14 AB 6279', routeName: 'NEMILI', routePath: 'PANAPAKKAM, 53, DHAMAL BYE PASS, BALCHETTY BYE PASS, KELAMBI, SIRUKAVARIPAKKAM, OLIMUGA PETTAI, GK MANDABAM, ESWARA KOVIL, KANCHIPURAM BUS STAND, POOKADAI CHATRAM, POONERI KARAI, PRANDUR, VEGANAPURAM, KANDHUR, SOGANDI, TIRUPANJUR, TIRUMANIKUPPAM, CAMPUS', stops: ['Panapakkam', '53', 'Dhamal Bye Pass', 'Balchetty Bye Pass', 'Kelambi', 'Sirukavaripakkam', 'Olimuga Pettai', 'GK Mandabam', 'Eswara Kovil', 'Kanchipuram Bus Stand', 'Pookadai Chatram', 'Pooneri Karai', 'Prandur', 'Veganapuram', 'Kandhur', 'Sogandi', 'Tirupanjur', 'Tirumanikuppam', 'Campus'], driverName: 'Mr. Sakthivel', driverPhone: '9655031959' },
+  { id: 'route-2', sNo: 6, routeNo: 'Route No : 2', vehicleNumber: 'TN 14 AP 8817', routeName: 'GUDIYATHAM', routePath: 'GUDIYATHAM, VELLORE, KAVERIPAAKAM, OCHERI, BALUCHETTICHATHIRAM, VELLAI GATE, CAMPUS', stops: ['Gudiyatham', 'Vellore', 'Kaveripaakam', 'Ocheri', 'Baluchettichathiram', 'Vellai Gate', 'Campus'], driverName: 'Mr. Balaji', driverPhone: '9445941487' },
+  { id: 'route-2a', sNo: 7, routeNo: 'Route No : 2A', vehicleNumber: 'TN 14 AP 8709', routeName: 'ARANI', routePath: 'ARANI, THIMIRI, ARCOT, RANIPETTAI, WALAJAPETTAI, KILAMBI, GORI, VELLAI GATE, CAMPUS', stops: ['Arani', 'Thimiri', 'Arcot', 'Ranipettai', 'Walajapettai', 'Kilambi', 'Gori', 'Vellai Gate', 'Campus'], driverName: 'Mr. Mathavan R', driverPhone: '9994525363' },
+  { id: 'route-3', sNo: 8, routeNo: 'Route No : 3', vehicleNumber: 'TN 14 AP 9177', routeName: 'THIRUTHANI', routePath: 'THIRUTHANI, THIRUTHANI RAILWAY STATION, ARAKKONAM, THAKKOLAMKOOTROAD, THAKKOLAM, SR-GATE, PERAMPAAKAM, MAPPEDU, VAYALUR, CAMPUS', stops: ['Thiruthani', 'Thiruthani Railway Station', 'Arakkonam', 'Thakkolam Kootroad', 'Thakkolam', 'SR-Gate', 'Perampaakam', 'Mappedu', 'Vayalur', 'Campus'], driverName: 'Mr. Dhandapani', driverPhone: '9597826775' },
+  { id: 'route-4', sNo: 9, routeNo: 'Route No : 4', vehicleNumber: 'TN 14 AP 8727', routeName: 'UTHUKOTTAI', routePath: 'UTHUKOTTAI, UTHUKOTTAI BUS STAND, KAANCHUR, SEDHANCHERI, POONDI, THIRUPAACHIUR, KADAMPATHUR, PERAMPAAKAM, ULUNDAI, CAMPUS', stops: ['Uthukottai', 'Uthukottai Bus Stand', 'Kaanchur', 'Sedhancheri', 'Poondi', 'Thirupaachiur', 'Kadampathur', 'Perampaakam', 'Ulundai', 'Campus'], driverName: 'Mr. Nadhamuni', driverPhone: '7845924523' },
+  { id: 'route-4a', sNo: 10, routeNo: 'Route No : 4A', vehicleNumber: 'TN 22 BW 1212', routeName: 'VALLIYURE', routePath: 'KILAANOOR, THIRUNINDRAVURD, VEPAMBATTU, KAKALUR, THIRUVALLUR THERADI, POOKKADAI, POST OFFICE, OIL MIL, MANAVALANAGAR, NALLAATHUR, POLIVAKKAM, KAATTU KOOTROAD, CAMPUS', stops: ['Kilaanoor', 'Thirunindravurd', 'Vepambattu', 'Kakalur', 'Thiruvallur Theradi', 'Pookkadai', 'Post Office', 'Oil Mil', 'Manavalanagar', 'Nallaathur', 'Polivakkam', 'Kaattu Kootroad', 'Campus'], driverName: 'Mr. Vinothkumar', driverPhone: '9942364268' },
+  { id: 'route-5', sNo: 11, routeNo: 'Route No : 5', vehicleNumber: 'TN 14 AP 8799', routeName: 'MAHURAANTHAGAM', routePath: 'MADHURAANTHAGAM, KARUNGULI, PADALAM, CHENGALPATTU GH, RAATINAKINARU, CHENGALPATTU IYAPPAN KOIL, KOOTROAD, PAALLUR, WALAJABAD, KUNNAVAKKAM, ORAGADAM, SPD HIGH SCHOOL, CAMPUS', stops: ['Madhuraanthagam', 'Karunguli', 'Padalam', 'Chengalpattu GH', 'Raatinakinaru', 'Chengalpattu Iyappan Koil', 'Kootroad', 'Paallur', 'Walajabad', 'Kunnavakkam', 'Oragadam', 'SPD High School', 'Campus'], driverName: 'Mr. Venkatesh', driverPhone: '9600001278' },
+  { id: 'route-5a', sNo: 12, routeNo: 'Route No : 5A', vehicleNumber: 'TN 14 AP 8997', routeName: 'MAHENDRA CITY', routePath: 'MAHENDRA CITY, MARAIMALAINAGAR, PUTHERI, GUDUVANCHERI, KILAMPAAKAM, VANDALUR, MANNIVAKKAM, PADAIPPAI, ORAGADAM, SPD HIGH SCHOOL, CAMPUS', stops: ['Mahendra City', 'Maraimalainagar', 'Putheri', 'Guduvancheri', 'Kilampaakam', 'Vandalur', 'Mannivakkam', 'Padaippai', 'Oragadam', 'SPD High School', 'Campus'], driverName: 'Mr. Abdul', driverPhone: '9487766396' },
+  { id: 'route-6', sNo: 13, routeNo: 'Route No : 6', vehicleNumber: 'TN 14 AP 8637', routeName: 'GUMUDIPOONDI', routePath: 'GUMUDIPOONDI, KAVARAI PETTAI, THACHUR KOOTROAD, KAARANODAI, REDHILLS, PUYAL, KALLIKUPPAM, AMPATHUR, RAAKKI THEATER, THIRUMULLAI VAYIL, AVADI, PATTABIRAAM, THIRUNINDRAVURD, CAMPUS', stops: ['Gumudipoondi', 'Kavarai Pettai', 'Thachur Kootroad', 'Kaaranodai', 'Redhills', 'Puyal', 'Kallikuppam', 'Ampathur', 'Raakki Theater', 'Thirumullai Vayil', 'Avadi', 'Pattabiraam', 'Thirunindravurd', 'Campus'], driverName: 'Mr. Rajesh', driverPhone: '9003426874' },
+  { id: 'route-7', sNo: 14, routeNo: 'Route No : 7', vehicleNumber: 'TN 14 AP 8772', routeName: 'VILLIVAKKAM', routePath: 'VILLIVAAKAM, RETTERI, THIRUMANGALAM, PAADI BRIDGE, ANNANAGAR, GOLDEN FLAT, NOLAMBUR, MADHURAVAYAL, VANAGARAM, POONAMALLI, THANDALAM, MUGAPERU, CETTIPETTEDU, IRUNGATTU KOTTAI, SRIPERUBUDUR, CAMPUS', stops: ['Villivaakam', 'Retteri', 'Thirumangalam', 'Paadi Bridge', 'Annanagar', 'Golden Flat', 'Nolambur', 'Madhuravayal', 'Vanagaram', 'Poonamalli', 'Thandalam', 'Mugaperu', 'Cettipettedu', 'Irungattu Kottai', 'Sriperubudur', 'Campus'], driverName: 'Mr. Anbu', driverPhone: '7871284511' },
+  { id: 'route-7a', sNo: 15, routeNo: 'Route No : 7A', vehicleNumber: 'TN 14 AP 8673', routeName: 'KOYAMBADU', routePath: 'KOYAMBEDU, VADAPALANI, ASHOKEPILLAR, PONDICHERRY GUST HOUSE, VALASARVAKKAM, KESAVARTHINI, PORUR, BOY KADAI, KUNDRATHUR, SRIPERUMBUDUR, CAMPUS', stops: ['Koyambedu', 'Vadapalani', 'Ashokepillar', 'Pondicherry Guest House', 'Valasarvakkam', 'Kesavarthini', 'Porur', 'Boy Kadai', 'Kundrathur', 'Sriperumbudur', 'Campus'], driverName: 'Mr. Magesh', driverPhone: '9043807080' },
+  { id: 'route-7b', sNo: 16, routeNo: 'Route No : 7B', vehicleNumber: 'TN 14 AP 8979', routeName: 'THIRUVETRIUR', routePath: 'THIRUVETRIUR, MANALI, VANNARAPETTAI, PARIS, MOUNT ROAD, GEMINI FLYOVER, TEYNAMPET, SAIDAPET, GINDY, KATHI PARAI, MANAPAKKAM, PORUR, KATUPAKKAM, POONDAMALI, THANDALAM, KATU KOOT ROAD, CAMPUS', stops: ['ThiruVetrior', 'Manali', 'Vannarapettai', 'Paris', 'Mount Road', 'Gemini Flyover', 'Teynampet', 'Saidapet', 'Gindy', 'Kathi Parai', 'Manapakkam', 'Porur', 'Katupakkam', 'Poondamali', 'Thandalam', 'Katu Koot Road', 'Campus'], driverName: 'Mr. Ganasekar', driverPhone: '9159923848' },
+  { id: 'route-8', sNo: 17, routeNo: 'Route No : 8', vehicleNumber: 'TN 14 AP 8547', routeName: 'KOVILAMBAKKAM', routePath: 'KOVILAMBAKKAM, KAMACHI HOSPITAL, MADIPAKKAM, NANGANALUR, PALLAVARAM, PAMBAL, ANAGAPUDHUR, KARANUR, SOMAMNGALAM, SPD, CAMPUS', stops: ['Kovilambakkam', 'Kamachi Hospital', 'Madipakkam', 'Nanganalur', 'Pallavaram', 'Pambal', 'Anagapudh ur', 'Karanur', 'Somamngalam', 'SPD', 'Campus'], driverName: 'Mr. Ramesh', driverPhone: '9840913715' },
+  { id: 'route-9', sNo: 18, routeNo: 'Route No : 9', vehicleNumber: 'TN 22 AW 9789', routeName: 'MAIN CAMPUS', routePath: 'PADUR, NAVALUR, KELAMBAKKAM, KANDIGAI, MAMBAKKAM, VANDALUR, TAMBARAM BRIGE, MANIMANGALAM, JK TYE, SPD HIGH SCHOOL, CAMPUS', stops: ['Padur', 'Navalur', 'Kelambakkam', 'Kandigai', 'Mambakkam', 'Vandalur', 'Tambaram Brige', 'Manimangalam', 'JK Tye', 'SPD High School', 'Campus'], driverName: 'Mr. Manikandan', driverPhone: '8939093763' },
+  { id: 'route-10', sNo: 19, routeNo: 'Route No : 10', vehicleNumber: 'TN 14 Z 8979', routeName: 'SRIPERUMBUDUR', routePath: 'SENKADU, KATTU KOOTU ROAD, SRIPERMUBUDUR, HIGH SCHOOL, VADAMANGALAM, CAMPUS', stops: ['Senkadu', 'Kattu Kootu Road', 'Sripermubudur', 'High School', 'Vadamangalam', 'Campus'], driverName: 'Mr. Selvam', driverPhone: '8608054301' },
+  { id: 'route-10a', sNo: 20, routeNo: 'Route No : 10A', vehicleNumber: 'TN 14 AB 8997', routeName: 'PERAMBAKKAM', routePath: 'PERAMBAKKAM, MAPEDU, PANNUR, SONGANDI, SUNGUVACHTHIRAM, VADAMANGALAM, CAMPUS', stops: ['Perambakkam', 'Mapedu', 'Pannur', 'Songandi', 'Sunguvachthiram', 'Vadamangalam', 'Campus'], driverName: 'Mr. G Kumar', driverPhone: '8667762585' }
 ];

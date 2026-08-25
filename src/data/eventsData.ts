@@ -148,8 +148,7 @@ export const EVENTS_DATA: SymposiumEvent[] = [
       ]
     },
     coordinators: [
-      { name: 'Yathika Sivasakthi', phone: '+91 94451 88231', role: 'Student Lead (B.Tech IT)' },
-      { name: 'Faculty Coordinator', phone: '+91 98765 43213', role: 'Symposium Faculty' }
+      { name: 'Yathika S', phone: '+91 74180 57041', role: 'Event Coordinator' }
     ],
     slotsTotal: 40,
     slotsFilled: 29,
@@ -274,10 +273,7 @@ export const EVENTS_DATA: SymposiumEvent[] = [
       ]
     },
     coordinators: [
-      { name: 'R Kanishka', phone: '+91 93610 22104', role: 'Student Lead (BE CSE-AIML)' },
-      { name: 'Vigneshwari R', phone: '+91 98845 11203', role: 'Event Coordinator' },
-      { name: 'M Bhuvaneshwari', phone: '+91 97910 44512', role: 'Technical Lead' },
-      { name: 'Macario Rishi F', phone: '+91 96001 88720', role: 'Operations Coordinator' }
+      { name: 'R.Kanishka', phone: '+91 63833 38549', role: 'Event Coordinator' }
     ],
     slotsTotal: 60,
     slotsFilled: 48,
@@ -393,8 +389,7 @@ export const EVENTS_DATA: SymposiumEvent[] = [
       ]
     },
     coordinators: [
-      { name: 'Shobika Narendiran', phone: '+91 97890 33412', role: 'Event Coordinator (B.E. CSE)' },
-      { name: 'Faculty Lead', phone: '+91 98765 43211', role: 'Faculty Coordinator' }
+      { name: 'Shobika Narendiran', phone: '+91 93422 48191', role: 'Event Coordinator' }
     ],
     slotsTotal: 40,
     slotsFilled: 28,
@@ -505,8 +500,7 @@ export const EVENTS_DATA: SymposiumEvent[] = [
       ]
     },
     coordinators: [
-      { name: 'Sarah Connor', phone: '+91 98765 43212', role: 'Student Lead' },
-      { name: 'Prof. K. Rajan', phone: '+91 98765 43213', role: 'Faculty Coordinator' }
+      { name: 'NITHISH B', phone: '+91 73977 94623', role: 'Event Coordinator' }
     ],
     slotsTotal: 60,
     slotsFilled: 45,
@@ -639,8 +633,7 @@ export const EVENTS_DATA: SymposiumEvent[] = [
       ]
     },
     coordinators: [
-      { name: 'Marcus Wright', phone: '+91 98765 43216', role: 'Cyber Lead' },
-      { name: 'Dr. M. Suresh', phone: '+91 98765 43217', role: 'Faculty Coordinator' }
+      { name: 'Shittesh S', phone: '+91 89256 75390', role: 'Event Coordinator' }
     ],
     slotsTotal: 30,
     slotsFilled: 22,
@@ -729,8 +722,7 @@ export const EVENTS_DATA: SymposiumEvent[] = [
       ]
     },
     coordinators: [
-      { name: 'Jack Harper', phone: '+91 98765 43220', role: 'Esports Lead' },
-      { name: 'Prof. R. David', phone: '+91 98765 43221', role: 'Faculty Coordinator' }
+      { name: 'Munuswamy S', phone: '+91 81227 36257', role: 'Event Coordinator' }
     ],
     slotsTotal: 35,
     slotsFilled: 30,
@@ -842,8 +834,7 @@ export const EVENTS_DATA: SymposiumEvent[] = [
       ]
     },
     coordinators: [
-      { name: 'Tharunkumar S', phone: '+91 93452 77109', role: 'Student Lead (B.Tech IT 2nd Year)' },
-      { name: 'Faculty Coordinator', phone: '+91 98765 43223', role: 'Faculty Lead' }
+      { name: 'Tharunkumar S', phone: '+91 63806 48278', role: 'Event Coordinator' }
     ],
     slotsTotal: 50,
     slotsFilled: 41,
@@ -929,8 +920,7 @@ export const EVENTS_DATA: SymposiumEvent[] = [
       ]
     },
     coordinators: [
-      { name: 'Clara Oswald', phone: '+91 98765 43226', role: 'Student Lead' },
-      { name: 'Prof. E. George', phone: '+91 98765 43227', role: 'Faculty Coordinator' }
+      { name: 'Avinash S', phone: '+91 90258 49870', role: 'Event Coordinator' }
     ],
     slotsTotal: 45,
     slotsFilled: 33,
@@ -982,8 +972,7 @@ export const EVENTS_DATA: SymposiumEvent[] = [
       ]
     },
     coordinators: [
-      { name: 'Gordon Gekko', phone: '+91 98765 43224', role: 'Student Lead' },
-      { name: 'Dr. L. Lakshmi', phone: '+91 98765 43225', role: 'Faculty Coordinator' }
+      { name: 'Dhushyanthar P', phone: '+91 93420 88947', role: 'Event Coordinator' }
     ],
     slotsTotal: 30,
     slotsFilled: 24,
