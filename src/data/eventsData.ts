@@ -17,30 +17,28 @@ export interface EventCombo {
 export const COMBOS_DATA: EventCombo[] = [
   {
     id: 'combo-individual-all-access',
-    title: 'All Individual Events Access Pass',
-    tagline: 'All-access solo survivor pass unlocking all 4 individual technical & non-technical events.',
-    price: 500,
-    originalPrice: 600,
+    title: '3-Event Individual Combo Pass',
+    tagline: 'All-access solo pass for Profile Architect, Memergency and Prompt Perfect.',
+    price: 350,
+    originalPrice: 450,
     savings: 100,
-    badge: 'ALL INDIVIDUAL EVENTS COMBO',
-    description: 'One single all-access pass for ₹500 that grants complete official entry to all four individual events across both days: Profile Architect, Neural Rush (Gen AI Clash), Prompt Perfect, and Memergency.',
+    badge: '3-EVENT INDIVIDUAL COMBO',
+    description: 'One single combo pass for ₹350 that grants complete official entry to Profile Architect, Memergency, and Prompt Perfect.',
     includedEventIds: [
       'tech-profile-architect',
-      'tech-neural-rush',
       'nontech-prompt-perfect',
       'nontech-memergency'
     ],
     includedEventTitles: [
       'Profile Architect (Tech - ₹150)',
-      'Neural Rush / Gen AI Clash (Tech - ₹150)',
       'Prompt Perfect (Non-Tech - ₹150)',
       'Memergency (Non-Tech - ₹150)'
     ],
     rules: [
-      'Valid for 1 individual attendee across all 4 individual event tracks.',
-      'Grants all-inclusive access to all 4 individual solo competitions for a single flat fee of ₹500 (Saves ₹100).',
-      'Single QR Pass grants entry to all individual event arenas with refreshments included.',
-      'Participation & Merit certificates awarded for each event completed.'
+      'Valid for 1 individual attendee across 3 selected individual event tracks.',
+      'Grants all-inclusive access to Profile Architect, Prompt Perfect, and Memergency for a single flat fee of ₹350 (Saves ₹100).',
+      'Single QR Pass grants entry to all 3 included individual event arenas with refreshments included.',
+      'Participation & Merit certificates awarded for each included event completed.'
     ]
   }
 ];
@@ -157,25 +155,25 @@ export const EVENTS_DATA: SymposiumEvent[] = [
   },
 
   // =========================================================================
-  // 2. NEURAL RUSH / GEN AI CLASH (TECHNICAL - INDIVIDUAL)
+  // 2. NEURAL RUSH / GEN AI CLASH (TECHNICAL - DUO)
   // =========================================================================
   {
     id: 'tech-neural-rush',
     title: 'Neural Rush (Gen AI Clash)',
-    tagline: '4-Level individual AI tech quiz, AI vs. Human detection, logic vault, and rapid-fire finals.',
+    tagline: '4-Level duo AI tech quiz, AI vs. Human detection, logic vault, and rapid-fire finals.',
     category: 'technical',
     day: 'Day 1',
     time: '11:00 AM - 02:00 PM',
     venue: 'Seminar Hall II',
-    teamSize: 'Individual (1 Member)',
-    minTeamSize: 1,
-    maxTeamSize: 1,
+    teamSize: 'Duo (2 Members)',
+    minTeamSize: 2,
+    maxTeamSize: 2,
     entryFee: 150,
     prizePool: '1st, 2nd & 3rd Cash Prizes + Winner Certificates',
     shortDescription: 'Multi-level challenge from Byte Rush quiz to AI Detective detection, AI Vault puzzles, and high-pressure finals.',
-    fullDescription: 'Neural Rush (Gen AI Clash) is an individual technical quiz and challenge event conducted as part of IgniteX\'26. The event is designed to test participants\' knowledge of Artificial Intelligence, emerging technologies, logical thinking, observation skills, and ability to detect AI artifacts within strict time limits. Progress through four progressive levels from Byte Rush to high-pressure finals.',
+    fullDescription: 'Neural Rush (Gen AI Clash) is a duo technical quiz and challenge event conducted as part of IgniteX\'26. The event is designed to test participants\' knowledge of Artificial Intelligence, emerging technologies, logical thinking, observation skills, and ability to detect AI artifacts within strict time limits. Progress through four progressive levels from Byte Rush to high-pressure finals.',
     rules: [
-      'Neural Rush is strictly an individual event. Team participation is not permitted.',
+      'Neural Rush is a duo event. Each team must have exactly 2 unique members.',
       'Each participant may register only once.',
       'Participants must follow the instructions given by the event coordinators throughout all levels.',
       'Mobile phones or personal devices are permitted only during Level 1, strictly for accessing the designated digital quiz platform.',

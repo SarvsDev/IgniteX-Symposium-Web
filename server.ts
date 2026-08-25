@@ -375,9 +375,9 @@ app.post('/api/register', async (req, res) => {
       }
     }
 
-    const individualComboSlugs = new Set(['tech-profile-architect', 'tech-neural-rush', 'nontech-prompt-perfect', 'nontech-memergency']);
-    const isIndividualCombo = events.length === 4 && events.every((e: any) => individualComboSlugs.has(e.slug));
-    const totalAmount = isIndividualCombo ? 500 : events.reduce((sum: number, e: any) => sum + Number(e.entry_fee || 0), 0);
+    const comboSlugs = new Set(['tech-profile-architect', 'nontech-prompt-perfect', 'nontech-memergency']);
+    const isIndividualCombo = events.length === 3 && events.every((e: any) => comboSlugs.has(e.slug));
+    const totalAmount = isIndividualCombo ? 350 : events.reduce((sum: number, e: any) => sum + Number(e.entry_fee || 0), 0);
     const { data: generatedNumber, error: numberError } = await client.rpc('generate_next_registration_number');
     if (numberError || !generatedNumber) throw numberError || new Error('Could not generate registration number. Run the Supabase migration first.');
     const { data: registration, error: regError } = await client.from('registrations').insert({

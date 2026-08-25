@@ -96,7 +96,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             <p className="text-neutral-200 font-sans text-base sm:text-lg max-w-2xl leading-relaxed">
               Assemble at Sector Gate 1 for the supreme battle of technical mastery and IgniteX innovation. 
               Compete in <strong className="text-amber-400">9 high-stakes challenges</strong> across Technical & Non-Technical tracks 
-              (Resume Building, Poster Making, Zero - The Final Key, Error Hunt, Neural Rush, Pitch Desk, Operation Bermuda, Prompt Perfect & Memergency) or grab the <strong className="text-emerald-400">₹500 All-Access Individual Pass</strong>!
+              (Resume Building, Poster Making, Zero - The Final Key, Error Hunt, Neural Rush, Pitch Desk, Operation Bermuda, Prompt Perfect & Memergency) or grab the <strong className="text-emerald-400">₹350 3-Event Individual Pass</strong>!
             </p>
 
             {/* Venue & Organizer Tag */}

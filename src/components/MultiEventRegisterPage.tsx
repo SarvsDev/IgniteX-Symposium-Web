@@ -121,7 +121,8 @@ export function MultiEventRegisterPage({
   };
 
   // Individual 4 solo events for combo pass
-  const soloEventIds = ['tech-profile-architect', 'tech-neural-rush', 'nontech-prompt-perfect', 'nontech-memergency'];
+  const soloEventIds = ['tech-profile-architect', 'nontech-prompt-perfect', 'nontech-memergency'];
+  const comboEventIds = ['tech-profile-architect', 'nontech-memergency', 'nontech-prompt-perfect'];
 
   // Toggle single event
   const toggleEventSelection = (event: SymposiumEvent) => {
@@ -150,7 +151,7 @@ export function MultiEventRegisterPage({
 
   const selectAllIndividualCombo = () => {
     soundFx.playSuccess();
-    const individualIds = events.filter(e => soloEventIds.includes(e.id)).map(e => e.id);
+    const individualIds = events.filter(e => comboEventIds.includes(e.id)).map(e => e.id);
     setSelectedEventIds(individualIds);
   };
 
@@ -187,10 +188,10 @@ export function MultiEventRegisterPage({
   const selectedEvents = events.filter(e => selectedEventIds.includes(e.id));
   const rawTotalFee = selectedEvents.reduce((acc, e) => acc + e.entryFee, 0);
 
-  // Apply combo flat price ₹500 if all individual events are selected
-  const isAllIndividualComboSelected = soloEventIds.every(id => selectedEventIds.includes(id)) && selectedEvents.every(e => soloEventIds.includes(e.id));
+  // Apply combo flat price ₹350 if the 3 included combo events are selected
+  const isAllIndividualComboSelected = comboEventIds.every(id => selectedEventIds.includes(id)) && selectedEvents.length === comboEventIds.length && selectedEvents.every(e => comboEventIds.includes(e.id));
   const isEligibleForComboDiscount = isAllIndividualComboSelected;
-  const comboDiscount = isEligibleForComboDiscount ? Math.max(0, rawTotalFee - 500) : 0;
+  const comboDiscount = isEligibleForComboDiscount ? Math.max(0, rawTotalFee - 350) : 0;
   const finalPayableAmount = Math.max(0, rawTotalFee - comboDiscount);
 
   // Validate Form & Redirect to Dedicated Payment Page
@@ -755,13 +756,13 @@ export function MultiEventRegisterPage({
         <div className="space-y-2 text-center lg:text-left">
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-400/20 border border-amber-400/40 text-amber-400 font-mono text-xs font-black uppercase tracking-wider">
             <Flame className="w-3.5 h-3.5 text-amber-400" />
-            <span>₹500 VIP ALL-ACCESS COMBO PASS // SAVE ₹100</span>
+            <span>₹350 COMBO PASS // SAVE ₹100</span>
           </span>
           <h3 className="text-2xl sm:text-3xl font-mono font-black text-white uppercase">
             EVERY INDIVIDUAL EVENT PASS
           </h3>
           <p className="text-xs sm:text-sm text-neutral-300 font-sans max-w-2xl">
-            Unlocks all 4 solo events (Resume Building, Error Hunt, Prompt Perfect, Memergency) for just ₹500 instead of ₹600. Instant entry across Day 1 & Day 2!
+            Unlocks Profile Architect, Prompt Perfect and Memergency for just ₹350 instead of ₹450. Instant entry across Day 1 & Day 2!
           </p>
         </div>
 
@@ -772,7 +773,7 @@ export function MultiEventRegisterPage({
             className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 text-black font-mono text-xs font-black hover:scale-105 transition-all shadow-[0_0_20px_rgba(251,191,36,0.4)] w-full sm:w-auto"
           >
             <Zap className="w-4 h-4 text-black" />
-            <span>CLAIM ALL-ACCESS PASS (₹500)</span>
+            <span>CLAIM 3-EVENT COMBO (₹350)</span>
           </button>
         </div>
       </div>
