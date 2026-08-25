@@ -2,11 +2,14 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "functions": {
-    "api/[...path].ts": {
-      "maxDuration": 60
-    },
     "api/admin/[...path].ts": {
       "maxDuration": 60
+    },
+    "api/register.ts": {
+      "maxDuration": 60
+    },
+    "api/attendance/verify.ts": {
+      "maxDuration": 30
     }
   },
   "rewrites": [

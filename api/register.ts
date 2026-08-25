@@ -1,15 +1,9 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { randomBytes } from 'node:crypto';
 import { z } from 'zod';
+import { supabaseConfig } from '../lib/serverEnv';
 
-const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-
-const supabaseConfigured = Boolean(
-  SUPABASE_URL &&
-  SUPABASE_SERVICE_ROLE_KEY &&
-  SUPABASE_URL.startsWith('http')
-);
+const { url: SUPABASE_URL, serviceRoleKey: SUPABASE_SERVICE_ROLE_KEY, configured: supabaseConfigured, missing: supabaseMissing } = supabaseConfig();
 
 const supabase: SupabaseClient | null = supabaseConfigured
   ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
@@ -256,7 +250,7 @@ export default async function handler(req: any, res: any) {
         success: false,
         error: {
           code: 'SUPABASE_NOT_CONFIGURED',
-          message: 'Supabase server configuration is missing. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in Vercel.',
+          message: `Supabase is not configured on Vercel. Set ${supabaseMissing.join(' and ') || 'SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY'} on the project (Production, Preview, and Development), then redeploy.`,
         },
       });
     }

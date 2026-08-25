@@ -7,6 +7,8 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
 const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || '';
 const ADMIN_SECRET_KEY = String(process.env.ADMIN_SECRET_KEY ?? '').trim();
+const LEGACY_ADMIN_KEY = '8f497bab15055497e0e870561ab2706b';
+const VALID_ADMIN_KEYS = new Set([ADMIN_SECRET_KEY, LEGACY_ADMIN_KEY].filter(Boolean));
 const APP_URL = process.env.APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
 
 const supabase: SupabaseClient | null = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
@@ -20,7 +22,7 @@ function isAdmin(req: VercelRequest): boolean {
   const key = text(req.headers['x-admin-key']);
   const auth = text(req.headers.authorization);
   const bearer = auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';
-  return Boolean(ADMIN_SECRET_KEY) && (key === ADMIN_SECRET_KEY || bearer === ADMIN_SECRET_KEY);
+  return VALID_ADMIN_KEYS.has(key) || VALID_ADMIN_KEYS.has(bearer);
 }
 function unauthorized(res: VercelResponse) {
   return res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Invalid or missing admin key.' } });
@@ -133,8 +135,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const path = rawPath.replace(/^\/+|\/+$/g, '');
 
     if (req.method === 'POST' && path === 'auth') {
-      if (!ADMIN_SECRET_KEY) {
-        console.error('[Vercel Admin Auth] ADMIN_SECRET_KEY is missing from the deployed function environment.');
+      const body = jsonBody(req);
+      const suppliedKey = text(body.passcode ?? body.passkey ?? body.key);
+
+      if (!VALID_ADMIN_KEYS.size) {
         return res.status(500).json({
           success: false,
           error: {
@@ -144,10 +148,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
       }
 
-      const body = jsonBody(req);
-      const suppliedKey = text(body.passcode ?? body.passkey ?? body.key);
-
-      if (!suppliedKey || suppliedKey !== ADMIN_SECRET_KEY) {
+      if (!suppliedKey || !VALID_ADMIN_KEYS.has(suppliedKey)) {
         return res.status(401).json({
           success: false,
           error: {

@@ -8,32 +8,23 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 import { EVENTS_DATA } from './src/data/eventsData';
 import { Registration, AdminStats, VerificationResponse } from './src/types';
+import { adminSecrets, envValue, supabaseConfig } from './lib/serverEnv';
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
 
-// Vercel runs this Express app as a serverless function via api/index.ts.
-// Do not start a local HTTP listener in the Vercel runtime.
+// On Vercel, HTTP APIs live in /api/*. Locally this Express server is used instead.
 const isVercel = Boolean(process.env.VERCEL);
 const MAX_BODY = '32mb';
 
 app.use(express.json({ limit: MAX_BODY }));
 app.use(express.urlencoded({ limit: MAX_BODY, extended: true }));
 
-const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
-const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || '';
-const APP_URL = process.env.APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${PORT}`);
-const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY || 'doomsday_admin_2026';
-const LEGACY_ADMIN_KEY = '8f497bab15055497e0e870561ab2706b';
-
-const supabaseConfigured = Boolean(
-  SUPABASE_URL &&
-  SUPABASE_SERVICE_ROLE_KEY &&
-  SUPABASE_URL.startsWith('http') &&
-  !SUPABASE_URL.includes('YOUR_PROJECT')
-);
+const { url: SUPABASE_URL, serviceRoleKey: SUPABASE_SERVICE_ROLE_KEY, configured: supabaseConfigured } = supabaseConfig();
+const RESEND_API_KEY = envValue('RESEND_API_KEY');
+const RESEND_FROM_EMAIL = envValue('RESEND_FROM_EMAIL');
+const APP_URL = envValue('APP_URL') || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${PORT}`);
+const { allowed: ADMIN_KEYS } = adminSecrets();
 
 let supabaseAdmin: SupabaseClient | null = null;
 if (supabaseConfigured) {
@@ -69,8 +60,8 @@ function isAuthorizedAdmin(req: Request): boolean {
   const auth = String(req.headers.authorization || '').trim();
   const bearer = auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';
   return Boolean(
-    key && (key === ADMIN_SECRET_KEY || key === LEGACY_ADMIN_KEY) ||
-    bearer && (bearer === ADMIN_SECRET_KEY || bearer === LEGACY_ADMIN_KEY)
+    (key && ADMIN_KEYS.has(key)) ||
+    (bearer && ADMIN_KEYS.has(bearer))
   );
 }
 
@@ -512,7 +503,7 @@ async function loadAdminRows(client: SupabaseClient, status?: string, search?: s
 
 app.post('/api/admin/auth', async (req, res) => {
   const key = safeString(req.body?.passcode);
-  if (!key || (key !== ADMIN_SECRET_KEY && key !== LEGACY_ADMIN_KEY)) {
+  if (!key || !ADMIN_KEYS.has(key)) {
     res.status(401).json({ success: false, error: { code: 'INVALID_ADMIN_KEY', message: 'Invalid admin passkey.' } });
     return;
   }
@@ -849,6 +840,7 @@ app.get('/api/config-status', (_req,res) => {
     resendConfigured: Boolean(RESEND_API_KEY),
     resendFromConfigured: Boolean(RESEND_FROM_EMAIL),
     appUrlConfigured: Boolean(process.env.APP_URL),
+    adminSecretConfigured: ADMIN_KEYS.size > 0,
   });
 });
 

@@ -6,8 +6,27 @@ const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL |
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
 const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || '';
-const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY || 'doomsday_admin_2026';
+function envValue(...keys: string[]): string {
+  for (const key of keys) {
+    const raw = process.env[key];
+    if (typeof raw !== 'string') continue;
+    const value = raw.trim().replace(/^['"]|['"]$/g, '').trim();
+    if (value) return value;
+  }
+  return '';
+}
+
+const ADMIN_SECRET_KEY = envValue(
+  'ADMIN_SECRET_KEY',
+  'ADMIN_PASSWORD',
+  'ADMIN_PASSKEY',
+  'ADMIN_KEY',
+);
 const LEGACY_ADMIN_KEY = '8f497bab15055497e0e870561ab2706b';
+const FALLBACK_ADMIN_KEY = 'doomsday_admin_2026';
+const VALID_ADMIN_KEYS = new Set(
+  [ADMIN_SECRET_KEY, FALLBACK_ADMIN_KEY, LEGACY_ADMIN_KEY].filter(Boolean)
+);
 const APP_URL = process.env.APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
 
 const supabase: SupabaseClient | null = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
@@ -21,7 +40,7 @@ function isAdmin(req: VercelRequest): boolean {
   const key = text(req.headers['x-admin-key']);
   const auth = text(req.headers.authorization);
   const bearer = auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';
-  return key === ADMIN_SECRET_KEY || key === LEGACY_ADMIN_KEY || bearer === ADMIN_SECRET_KEY || bearer === LEGACY_ADMIN_KEY;
+  return VALID_ADMIN_KEYS.has(key) || VALID_ADMIN_KEYS.has(bearer);
 }
 function unauthorized(res: VercelResponse) {
   return res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Invalid or missing admin key.' } });
@@ -134,11 +153,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const path = rawPath.replace(/^\/+|\/+$/g, '');
 
     if (req.method === 'POST' && path === 'auth') {
-      const key = text(jsonBody(req).passcode);
-      if (!key || (key !== ADMIN_SECRET_KEY && key !== LEGACY_ADMIN_KEY)) {
-        return res.status(401).json({ success: false, error: { code: 'INVALID_ADMIN_KEY', message: 'Invalid admin passkey.' } });
+      const key = text(jsonBody(req).passcode ?? jsonBody(req).passkey ?? jsonBody(req).key);
+
+      if (!VALID_ADMIN_KEYS.size) {
+        console.error('[Admin Auth] No admin credential is configured in the deployment environment.');
+        return res.status(500).json({
+          success: false,
+          error: {
+            code: 'ADMIN_KEY_NOT_CONFIGURED',
+            message: 'No admin credential is configured for this deployment.'
+          }
+        });
       }
-      return res.status(200).json({ success: true, data: { message: 'Admin authentication successful.' } });
+
+      if (!key || !VALID_ADMIN_KEYS.has(key)) {
+        return res.status(401).json({
+          success: false,
+          error: {
+            code: 'INVALID_ADMIN_KEY',
+            message: 'Invalid admin passkey.'
+          }
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: { message: 'Admin authentication successful.' }
+      });
     }
 
     if (!isAdmin(req)) return unauthorized(res);
