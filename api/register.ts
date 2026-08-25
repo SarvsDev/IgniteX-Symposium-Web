@@ -3,13 +3,26 @@ import { randomBytes } from 'node:crypto';
 import { z } from 'zod';
 import { supabaseConfig } from '../lib/serverEnv';
 
-const { url: SUPABASE_URL, serviceRoleKey: SUPABASE_SERVICE_ROLE_KEY, configured: supabaseConfigured, missing: supabaseMissing } = supabaseConfig();
+function getSupabaseClient(): { client: SupabaseClient | null; missing: string[] } {
+  const config = supabaseConfig();
 
-const supabase: SupabaseClient | null = supabaseConfigured
-  ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+  if (!config.configured) {
+    return { client: null, missing: config.missing };
+  }
+
+  try {
+    // Create the privileged client inside the request handler rather than at
+    // module load time. This prevents a malformed/missing deployment secret
+    // from crashing the entire Vercel function before our error handling runs.
+    const client = createClient(config.url, config.serviceRoleKey, {
       auth: { autoRefreshToken: false, persistSession: false },
-    })
-  : null;
+    });
+    return { client, missing: [] };
+  } catch (error: any) {
+    console.error('[api/register] Supabase client initialization failed:', error);
+    return { client: null, missing: ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'] };
+  }
+}
 
 const registrationSchema = z.object({
   participant: z.object({
@@ -46,8 +59,15 @@ const registrationSchema = z.object({
 });
 
 function json(res: any, status: number, body: unknown) {
-  res.status(status).setHeader('Content-Type', 'application/json; charset=utf-8');
-  res.end(JSON.stringify(body));
+  if (typeof res.status === 'function' && typeof res.json === 'function') {
+    return res.status(status).json(body);
+  }
+
+  if (typeof res.status === 'function') res.status(status);
+  if (typeof res.setHeader === 'function') {
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  }
+  return res.end(JSON.stringify(body));
 }
 
 function generateRegistrationNumber(): string {
@@ -245,12 +265,14 @@ export default async function handler(req: any, res: any) {
       });
     }
 
+    const { client: supabase, missing: supabaseMissing } = getSupabaseClient();
+
     if (!supabase) {
       return json(res, 503, {
         success: false,
         error: {
           code: 'SUPABASE_NOT_CONFIGURED',
-          message: `Supabase is not configured on Vercel. Set ${supabaseMissing.join(' and ') || 'SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY'} on the project (Production, Preview, and Development), then redeploy.`,
+          message: `Supabase is not configured on Vercel. Set ${supabaseMissing.join(' and ') || 'SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY'} on the project (Production and Preview), then redeploy.`,
         },
       });
     }

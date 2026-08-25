@@ -12,6 +12,39 @@ function adminHeaders(adminKey: string, json = false): HeadersInit {
   };
 }
 
+
+
+/**
+ * Authenticate the administrator against the server-side ADMIN_SECRET_KEY.
+ * The secret is never read from VITE_* variables and is never embedded in
+ * the client bundle. The value supplied here is exactly what the user typed.
+ */
+export async function authenticateAdmin(passcode: string): Promise<void> {
+  const key = passcode.trim();
+  if (!key) throw new Error('Enter the admin passkey.');
+
+  const response = await fetch('/api/admin/auth', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      'Cache-Control': 'no-store',
+    },
+    cache: 'no-store',
+    credentials: 'same-origin',
+    body: JSON.stringify({ key }),
+  });
+
+  const data = await parseResponse(response);
+  if (!response.ok || data?.success !== true) {
+    throw new Error(
+      data?.error?.message ||
+      data?.message ||
+      `Admin authentication failed (HTTP ${response.status}).`
+    );
+  }
+}
+
 export async function fetchAdminRegistrations(adminKey: string, statusFilter?: string): Promise<Registration[]> {
   const params = new URLSearchParams();
   if (statusFilter && statusFilter !== 'all') params.set('status', statusFilter);

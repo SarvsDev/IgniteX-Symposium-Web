@@ -35,6 +35,7 @@ import {
 import { Registration, AdminStats } from '../types';
 import { soundFx } from './AudioEffects';
 import {
+  authenticateAdmin,
   fetchAdminRegistrations,
   fetchAdminStats,
   approveRegistration,
@@ -121,42 +122,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const inputKey = passcode.trim();
     if (!inputKey) {
       soundFx.playAlert();
       alert('Enter the admin passkey.');
       return;
     }
+
     try {
-      const response = await fetch('/api/admin/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'Cache-Control': 'no-store' },
-        body: JSON.stringify({ passcode: inputKey }),
-      });
-
-      const raw = await response.text();
-      let data: any = {};
-      try {
-        data = raw ? JSON.parse(raw) : {};
-      } catch {
-        data = {
-          success: false,
-          error: { message: raw || `Admin authentication failed (HTTP ${response.status}).` },
-        };
-      }
-
-      if (!response.ok || data.success !== true) {
-        throw new Error(
-          data?.error?.message ||
-          data?.message ||
-          `Admin authentication failed (HTTP ${response.status}).`
-        );
-      }
+      // The client sends only the value entered by the administrator.
+      // The expected secret is read exclusively on the server from
+      // ADMIN_SECRET_KEY. Nothing is hard-coded in this component.
+      await authenticateAdmin(inputKey);
 
       setAdminKey(inputKey);
       setIsAuthenticated(true);
+      setPasscode('');
       soundFx.playSuccess();
-      loadData(inputKey);
+      await loadData(inputKey);
     } catch (error: any) {
       soundFx.playAlert();
       alert(error?.message || 'Access Denied: Invalid Admin Passkey');
