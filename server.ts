@@ -11,6 +11,10 @@ import { Registration, AdminStats, VerificationResponse } from './src/types';
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
+
+// Vercel runs this Express app as a serverless function via api/index.ts.
+// Do not start a local HTTP listener in the Vercel runtime.
+const isVercel = Boolean(process.env.VERCEL);
 const MAX_BODY = '32mb';
 
 app.use(express.json({ limit: MAX_BODY }));
@@ -20,7 +24,7 @@ const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL |
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
 const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || '';
-const APP_URL = process.env.APP_URL || `http://localhost:${PORT}`;
+const APP_URL = process.env.APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${PORT}`);
 const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY || 'doomsday_admin_2026';
 const LEGACY_ADMIN_KEY = '8f497bab15055497e0e870561ab2706b';
 
@@ -371,9 +375,9 @@ app.post('/api/register', async (req, res) => {
       }
     }
 
-    const individualComboSlugs = new Set(['tech-profile-architect', 'nontech-prompt-perfect', 'nontech-memergency']);
-    const isIndividualCombo = events.length === 3 && events.every((e: any) => individualComboSlugs.has(e.slug));
-    const totalAmount = isIndividualCombo ? 350 : events.reduce((sum: number, e: any) => sum + Number(e.entry_fee || 0), 0);
+    const individualComboSlugs = new Set(['tech-profile-architect', 'tech-neural-rush', 'nontech-prompt-perfect', 'nontech-memergency']);
+    const isIndividualCombo = events.length === 4 && events.every((e: any) => individualComboSlugs.has(e.slug));
+    const totalAmount = isIndividualCombo ? 500 : events.reduce((sum: number, e: any) => sum + Number(e.entry_fee || 0), 0);
     const { data: generatedNumber, error: numberError } = await client.rpc('generate_next_registration_number');
     if (numberError || !generatedNumber) throw numberError || new Error('Could not generate registration number. Run the Supabase migration first.');
     const { data: registration, error: regError } = await client.from('registrations').insert({
@@ -825,6 +829,9 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   res.status(500).json({ success:false,error:{code:'INTERNAL_ERROR',message:'Internal server error.'}});
 });
 
+export { app };
+export default app;
+
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({ server: { middlewareMode: true }, appType: 'spa' });
@@ -841,4 +848,6 @@ async function startServer() {
   });
 }
 
-startServer().catch((error) => { console.error(error); process.exit(1); });
+if (!isVercel) {
+  startServer().catch((error) => { console.error(error); process.exit(1); });
+}

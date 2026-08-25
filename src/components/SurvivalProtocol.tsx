@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldCheck, Bus, Radio, HelpCircle, Crown, Utensils, Building2, MapPin, CheckCircle2, AlertTriangle, X, Navigation, Phone, ExternalLink, Clock, FileText, Download } from 'lucide-react';
+import { ShieldCheck, Bus, Radio, HelpCircle, Crown, Utensils, Building2, MapPin, CheckCircle2, AlertTriangle, X, Navigation, Phone, ExternalLink, Clock } from 'lucide-react';
 import { BusRoutesModal } from './BusRoutesModal';
 
 export const SurvivalProtocol: React.FC = () => {
@@ -168,61 +168,6 @@ export const SurvivalProtocol: React.FC = () => {
             </div>
           </div>
 
-        </div>
-      </div>
-
-      {/* OFFICIAL LOCATION + RULEBOOK */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="p-6 rounded-2xl bg-[#040e07]/90 border border-emerald-900 space-y-4 shadow-[0_0_15px_rgba(0,0,0,0.5)]">
-          <div className="flex items-start gap-3">
-            <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
-              <MapPin className="w-5 h-5 text-emerald-400" />
-            </div>
-            <div>
-              <h3 className="font-mono text-sm font-bold text-white uppercase">OFFICIAL CAMPUS LOCATION</h3>
-              <p className="text-xs text-neutral-400 mt-1">Open the official Google Maps location for the event venue.</p>
-            </div>
-          </div>
-          <a
-            href="https://maps.app.goo.gl/ZzZBhWgiLsomuqaXA"
-            target="_blank"
-            rel="noreferrer"
-            className="w-full py-3 px-4 rounded-xl bg-emerald-500 text-black font-mono text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-emerald-400 transition-colors"
-          >
-            <Navigation className="w-4 h-4" />
-            OPEN LOCATION IN GOOGLE MAPS
-            <ExternalLink className="w-3.5 h-3.5" />
-          </a>
-        </div>
-
-        <div className="p-6 rounded-2xl bg-[#040e07]/90 border border-emerald-900 space-y-4 shadow-[0_0_15px_rgba(0,0,0,0.5)]">
-          <div className="flex items-start gap-3">
-            <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30">
-              <FileText className="w-5 h-5 text-amber-400" />
-            </div>
-            <div>
-              <h3 className="font-mono text-sm font-bold text-white uppercase">OFFICIAL RULEBOOK & SCHEDULE</h3>
-              <p className="text-xs text-neutral-400 mt-1">IGNITEX'26 official rules, event schedules, venues, team sizes, and event requirements.</p>
-            </div>
-          </div>
-          <a
-            href="/IGNITEX_26_Rulebook_Event_Schedule.pdf"
-            target="_blank"
-            rel="noreferrer"
-            className="w-full py-3 px-4 rounded-xl bg-amber-400 text-black font-mono text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-amber-300 transition-colors"
-          >
-            <FileText className="w-4 h-4" />
-            VIEW OFFICIAL RULEBOOK
-            <ExternalLink className="w-3.5 h-3.5" />
-          </a>
-          <a
-            href="/IGNITEX_26_Rulebook_Event_Schedule.pdf"
-            download
-            className="w-full py-2.5 px-4 rounded-xl border border-emerald-800 text-emerald-300 font-mono text-[11px] font-bold uppercase flex items-center justify-center gap-2 hover:bg-emerald-950 transition-colors"
-          >
-            <Download className="w-3.5 h-3.5" />
-            DOWNLOAD PDF
-          </a>
         </div>
       </div>
 

@@ -72,7 +72,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({
                   FEATURED COMBO PASS // SAVE ₹100
                 </span>
                 <h3 className="text-lg sm:text-xl font-mono font-black text-white uppercase">
-                  3 INDIVIDUAL EVENTS ACCESS — ₹350
+                  EVERY INDIVIDUAL EVENT ACCESS — ₹500
                 </h3>
               </div>
             </div>
@@ -82,21 +82,21 @@ export const EventsPage: React.FC<EventsPageProps> = ({
                 soundFx.playSuccess();
                 onQuickRegister({
                   id: 'combo-individual-all-access',
-                  title: '3-Event Individual Access Pass',
-                  tagline: 'VIP All-Access Pass unlocking 3 individual events (Profile Architect, Prompt Perfect, Memergency)',
+                  title: 'All Individual Events Access Pass',
+                  tagline: 'VIP All-Access Pass unlocking all 4 individual events (Profile Architect, Neural Rush, Prompt Perfect, Memergency)',
                   category: 'technical',
                   day: 'Day 1',
                   time: 'Sept 9 & 10 (Full Access)',
                   venue: 'All Individual Tracks (Zones A, C, X & Placement Labs)',
                   teamSize: 'Individual (1 Member)',
                   maxTeamSize: 1,
-                  entryFee: 350,
+                  entryFee: 500,
                   prizePool: '₹50,000 Total Prize Pool',
-                  shortDescription: 'Unlocks entry to 3 individual events for a single flat pass of ₹350 (Save ₹100 compared to individual registrations).',
-                  fullDescription: 'One single all-access pass for individual competitors. Grants full verified entry to Profile Architect (Resume Building), Prompt Perfect, and Memergency.',
+                  shortDescription: 'Unlocks entry to all 4 individual events for a single flat pass of ₹500 (Save ₹100 compared to individual registrations).',
+                  fullDescription: 'One single all-access pass for individual competitors. Grants full verified entry to Profile Architect (Resume Building), Neural Rush (Gen AI Clash), Prompt Perfect, and Memergency.',
                   rules: [
-                    'Valid for 1 individual participant across all 3 individual events.',
-                    'Grants complete access to all 3 individual competitions for a flat ₹350 fee (Save ₹100).',
+                    'Valid for 1 individual participant across all 4 individual events.',
+                    'Grants complete access to all 4 individual competitions for a flat ₹500 fee (Save ₹100).',
                     'Single QR Pass grants entry to all individual event arenas with refreshments included.',
                     'Certificates awarded for each individual event completed.'
                   ],
@@ -112,14 +112,18 @@ export const EventsPage: React.FC<EventsPageProps> = ({
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-black font-mono text-xs font-black hover:scale-[1.03] transition-all shadow-[0_0_20px_rgba(234,179,8,0.5)] shrink-0"
             >
               <Zap className="w-4 h-4 text-black" />
-              <span>GRAB COMBO PASS (₹350)</span>
+              <span>GRAB COMBO PASS (₹500)</span>
             </button>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-emerald-900/80 font-sans text-xs text-neutral-200">
             <div className="flex items-center gap-1.5 bg-[#020904]/80 p-2 rounded-lg border border-emerald-950">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-              <span>Profile Architect (₹150)</span>
+              <span>Resume Building (₹150)</span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-[#020904]/80 p-2 rounded-lg border border-emerald-950">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              <span>Error Hunt (₹150)</span>
             </div>
             <div className="flex items-center gap-1.5 bg-[#020904]/80 p-2 rounded-lg border border-emerald-950">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
