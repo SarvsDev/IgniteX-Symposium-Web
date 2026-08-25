@@ -1,7 +1,7 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { randomBytes } from 'node:crypto';
 import { z } from 'zod';
-import { supabaseConfig } from '../lib/serverEnv';
+import { supabaseConfig } from '../lib/serverEnv.js';
 
 // Registration performs several database/storage operations. Keep the Vercel
 // function alive long enough for the full transaction to complete.

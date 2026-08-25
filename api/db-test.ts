@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { adminSecrets, supabaseConfig } from '../lib/serverEnv';
+import { adminSecrets, supabaseConfig } from '../lib/serverEnv.js';
 
 function text(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';

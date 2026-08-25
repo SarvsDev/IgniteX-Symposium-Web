@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
-import { adminSecrets, envValue, supabaseConfig } from './serverEnv';
+import { adminSecrets, envValue, supabaseConfig } from './serverEnv.js';
 
 function getSupabase(): SupabaseClient | null {
   const { url, serviceRoleKey, configured } = supabaseConfig();

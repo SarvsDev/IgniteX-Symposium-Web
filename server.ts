@@ -8,7 +8,7 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 import { EVENTS_DATA } from './src/data/eventsData';
 import { Registration, AdminStats, VerificationResponse } from './src/types';
-import { adminSecrets, envValue, supabaseConfig } from './lib/serverEnv';
+import { adminSecrets, envValue, supabaseConfig } from './lib/serverEnv.js';
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);

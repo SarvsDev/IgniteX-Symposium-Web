@@ -1,4 +1,4 @@
-import { adminSecrets, envValue, supabaseConfig } from '../lib/serverEnv';
+import { adminSecrets, envValue, supabaseConfig } from '../lib/serverEnv.js';
 
 export default async function handler(_req: any, res: any) {
   try {

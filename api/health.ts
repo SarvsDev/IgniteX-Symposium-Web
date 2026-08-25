@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { envValue, supabaseConfig } from '../lib/serverEnv';
+import { envValue, supabaseConfig } from '../lib/serverEnv.js';
 
 export default async function handler(_req: any, res: any) {
   try {
