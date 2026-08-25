@@ -591,7 +591,8 @@ app.get('/api/admin/stats', async (req, res) => {
       let revenue = 0;
       for (const r of rows) {
         for (const link of r.registration_events || []) {
-          if (link.events?.slug === event.id) {
+          const linkedEvent = Array.isArray(link.events) ? link.events[0] : link.events;
+          if (linkedEvent?.slug === event.id) {
             count++;
             if (['APPROVED', 'CHECKED_IN'].includes(r.status)) revenue += Number(link.price_at_registration || 0);
           }
@@ -770,12 +771,16 @@ app.get('/api/admin/participant-events', async (req, res) => {
           members: (team.team_members || []).map((m: any) => m.member_name).filter(Boolean),
         });
       }
+      const participantRecord = Array.isArray(registration.participants)
+        ? registration.participants[0]
+        : registration.participants;
       for (const link of registration.registration_events || []) {
-        const eventName = link.events?.title || 'IgniteX Event';
-        const matchingTeam = [...teamByEvent.entries()].find(([eventId]) => eventId === link.events?.id || eventId === link.events?.slug)?.[1];
+        const eventRecord = Array.isArray(link.events) ? link.events[0] : link.events;
+        const eventName = eventRecord?.title || 'IgniteX Event';
+        const matchingTeam = [...teamByEvent.entries()].find(([eventId]) => eventId === eventRecord?.id || eventId === eventRecord?.slug)?.[1];
         rows.push({
           registration_number: registration.registration_number,
-          participant_name: registration.participants?.full_name || '',
+          participant_name: participantRecord?.full_name || '',
           event_name: eventName,
           team_name: matchingTeam?.name || '',
           team_members: matchingTeam?.members || [],

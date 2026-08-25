@@ -938,6 +938,7 @@ export const EVENTS_DATA: SymposiumEvent[] = [
     time: '10:30 AM - 02:00 PM',
     venue: 'Seminar Hall - I',
     teamSize: 'Team of 4 Members',
+    minTeamSize: 4,
     maxTeamSize: 4,
     entryFee: 400,
     prizePool: '1st, 2nd & 3rd Cash Prizes + Seed Mentorship',
