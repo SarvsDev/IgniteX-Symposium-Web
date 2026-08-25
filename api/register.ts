@@ -39,8 +39,7 @@ const registrationSchema = z.object({
 });
 
 function json(res: any, status: number, body: unknown) {
-  res.status(status).setHeader('Content-Type', 'application/json; charset=utf-8');
-  res.end(JSON.stringify(body));
+  return res.status(status).json(body);
 }
 
 function generateRegistrationNumber(): string {
@@ -93,8 +92,8 @@ async function uploadPaymentProof(
 
   // Keep this below typical Vercel request limits. The frontend should compress
   // screenshots before sending them.
-  if (parsed.buffer.length > 3 * 1024 * 1024) {
-    throw new Error('Payment proof is too large. Please upload a compressed image under 3 MB.');
+  if (parsed.buffer.length > 1.8 * 1024 * 1024) {
+    throw new Error('Payment proof is too large. Please upload a compressed image under 1.8 MB.');
   }
 
   const storagePath = `${registrationNumber}/payment-proof.${parsed.extension}`;
@@ -229,14 +228,44 @@ function toResponseRegistration(aggregate: any) {
 }
 
 export default async function handler(req: any, res: any) {
-  const { url: SUPABASE_URL, serviceRoleKey: SUPABASE_SERVICE_ROLE_KEY, configured: supabaseConfigured, missing: supabaseMissing } = supabaseConfig();
-  const supabase: SupabaseClient | null = supabaseConfigured ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { autoRefreshToken: false, persistSession: false } }) : null;
-  // Never let a runtime exception become Vercel's HTML FUNCTION_INVOCATION_FAILED page.
+  // Keep ALL initialization inside the try/catch. Vercel can otherwise turn a
+  // bad environment variable or client initialization error into an opaque
+  // FUNCTION_INVOCATION_FAILED response.
   try {
+    const { url: SUPABASE_URL, serviceRoleKey: SUPABASE_SERVICE_ROLE_KEY, configured: supabaseConfigured, missing: supabaseMissing } = supabaseConfig();
+    let supabase: SupabaseClient | null = null;
+
+    if (supabaseConfigured) {
+      try {
+        supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+          auth: { autoRefreshToken: false, persistSession: false },
+        });
+      } catch (clientError: any) {
+        console.error('[api/register] Supabase client initialization failed:', clientError);
+        return res.status(503).json({
+          success: false,
+          error: {
+            code: 'SUPABASE_CLIENT_INIT_FAILED',
+            message: clientError?.message || 'Supabase client could not be initialized.',
+          },
+        });
+      }
+    }
     if (req.method !== 'POST') {
       return json(res, 405, {
         success: false,
         error: { code: 'METHOD_NOT_ALLOWED', message: 'Use POST /api/register.' },
+      });
+    }
+
+    const rawBody = typeof req.body === 'string' ? req.body : '';
+    if (rawBody && Buffer.byteLength(rawBody, 'utf8') > 3.5 * 1024 * 1024) {
+      return json(res, 413, {
+        success: false,
+        error: {
+          code: 'REQUEST_TOO_LARGE',
+          message: 'Registration payload is too large. Please use the automatically compressed payment screenshot and try again.',
+        },
       });
     }
 

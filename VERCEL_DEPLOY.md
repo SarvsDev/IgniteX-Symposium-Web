@@ -25,3 +25,7 @@ Do NOT create `VITE_ADMIN_SECRET_KEY`.
 The previous catch-all Vercel API functions were removed. APIs are now explicit routes so Vercel can detect them reliably.
 
 Admin authentication uses only `ADMIN_SECRET_KEY`; no legacy or hard-coded admin password is included.
+
+
+## Registration payload safety
+Payment screenshots are compressed client-side before /api/register. Keep uploaded proofs below ~1.8 MB.

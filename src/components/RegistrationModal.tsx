@@ -95,15 +95,9 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
         setFormData((prev) => ({ ...prev, paymentScreenshot: compressedBase64 }));
         soundFx.playClick();
       } catch (err) {
-        console.warn('Fallback to standard file read:', err);
-        const reader = new FileReader();
-        reader.onload = () => {
-          const base64 = reader.result as string;
-          setScreenshotPreview(base64);
-          setFormData((prev) => ({ ...prev, paymentScreenshot: base64 }));
-          soundFx.playClick();
-        };
-        reader.readAsDataURL(file);
+        console.warn('Payment screenshot compression failed:', err);
+        setErrorMsg(err instanceof Error ? err.message : 'Could not compress payment screenshot. Please choose a smaller image.');
+        soundFx.playAlert();
       }
     }
   };

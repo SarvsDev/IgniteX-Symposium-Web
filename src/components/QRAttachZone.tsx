@@ -61,7 +61,7 @@ export const QRAttachZone: React.FC<QRAttachZoneProps> = ({
     setIsProcessing(true);
     setErrorMessage(null);
     try {
-      const compressedData = await compressImageFile(file, 1200, 1200, 0.8);
+      const compressedData = await compressImageFile(file, 1000, 1000, 0.6);
       onChange(compressedData, file.name);
       soundFx.playSuccess();
     } catch (err: any) {
@@ -178,13 +178,16 @@ export const QRAttachZone: React.FC<QRAttachZoneProps> = ({
     soundFx.playClick();
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    canvas.width = video.videoWidth || 640;
-    canvas.height = video.videoHeight || 480;
+    const sourceWidth = video.videoWidth || 640;
+    const sourceHeight = video.videoHeight || 480;
+    const scale = Math.min(1, 1000 / sourceWidth, 1000 / sourceHeight);
+    canvas.width = Math.max(1, Math.round(sourceWidth * scale));
+    canvas.height = Math.max(1, Math.round(sourceHeight * scale));
 
     const ctx = canvas.getContext('2d');
     if (ctx) {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
       onChange(dataUrl, `camera_capture_${Date.now()}.jpg`);
       soundFx.playSuccess();
       stopCamera();
@@ -236,7 +239,7 @@ export const QRAttachZone: React.FC<QRAttachZoneProps> = ({
               Drag &amp; Drop QR / Payment Screenshot here
             </p>
             <p className="text-[10px] text-neutral-400 font-sans">
-              Supports PNG, JPG, JPEG, WebP • Max 25MB (Auto-compressed)
+              Supports PNG, JPG, JPEG, WebP • Max 25MB (Auto-compressed for secure upload)
             </p>
           </div>
 
