@@ -1,11 +1,11 @@
 import 'dotenv/config';
 import express, { Request, Response, NextFunction } from 'express';
+import { randomBytes } from 'crypto';
 import path from 'path';
 import QRCode from 'qrcode';
 import { Resend } from 'resend';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { z } from 'zod';
-import { createServer as createViteServer } from 'vite';
 import { EVENTS_DATA } from './src/data/eventsData';
 import { Registration, AdminStats, VerificationResponse } from './src/types';
 
@@ -92,6 +92,15 @@ function safeString(value: unknown): string {
 function normalizeEmail(value: string): string {
   return value.trim().toLowerCase();
 }
+
+function generateRegistrationNumber(): string {
+  const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const bytes = randomBytes(4);
+  let value = 'IGX-';
+  for (let i = 0; i < 4; i++) value += chars[bytes[i] % chars.length];
+  return value;
+}
+
 
 function escapeHtml(value: unknown): string {
   return String(value ?? '')
@@ -378,20 +387,34 @@ app.post('/api/register', async (req, res) => {
     const comboSlugs = new Set(['tech-profile-architect', 'nontech-prompt-perfect', 'nontech-memergency']);
     const isIndividualCombo = events.length === 3 && events.every((e: any) => comboSlugs.has(e.slug));
     const totalAmount = isIndividualCombo ? 350 : events.reduce((sum: number, e: any) => sum + Number(e.entry_fee || 0), 0);
-    const { data: generatedNumber, error: numberError } = await client.rpc('generate_next_registration_number');
-    if (numberError || !generatedNumber) throw numberError || new Error('Could not generate registration number. Run the Supabase migration first.');
-    const { data: registration, error: regError } = await client.from('registrations').insert({
-      registration_number: generatedNumber,
-      participant_id: participantId,
-      status: 'PENDING',
-      payment_status: body.payment.transaction_id ? 'SUBMITTED' : 'PENDING',
-      payment_amount: totalAmount,
-      payment_gateway: body.payment.payment_gateway || 'BANK_TRANSFER',
-      transaction_id: body.payment.transaction_id?.trim() || null,
-      registration_source: 'website',
-      metadata: { selected_event_slugs: slugs },
-    }).select('*,participants(*)').single();
-    if (regError) throw regError;
+
+    // Generate IGX-XXXX in the application so registration does not depend on a
+    // Supabase RPC being present in the deployed database/schema cache.
+    let registration: any = null;
+    let regError: any = null;
+    for (let attempt = 0; attempt < 8 && !registration; attempt++) {
+      const generatedNumber = generateRegistrationNumber();
+      const result = await client.from('registrations').insert({
+        registration_number: generatedNumber,
+        participant_id: participantId,
+        status: 'PENDING',
+        payment_status: body.payment.transaction_id ? 'SUBMITTED' : 'PENDING',
+        payment_amount: totalAmount,
+        payment_gateway: body.payment.payment_gateway || 'BANK_TRANSFER',
+        transaction_id: body.payment.transaction_id?.trim() || null,
+        registration_source: 'website',
+        metadata: { selected_event_slugs: slugs },
+      }).select('*,participants(*)').single();
+      if (!result.error) {
+        registration = result.data;
+        regError = null;
+        break;
+      }
+      regError = result.error;
+      // 23505 = unique violation. Generate another IGX-XXXX and retry.
+      if (result.error.code !== '23505') break;
+    }
+    if (!registration) throw regError || new Error('Could not generate a unique registration ID.');
 
     const receiptNumber = `RCPT-${registration.registration_number.replace('REG-', '')}`;
     const { error: receiptError } = await client.from('registrations').update({ receipt_number: receiptNumber }).eq('id', registration.id);
@@ -462,7 +485,7 @@ app.post('/api/register', async (req, res) => {
     });
   } catch (error: any) {
     console.error('[POST /api/register]', error);
-    res.status(500).json({ success: false, error: { code: 'REGISTRATION_FAILED', message: error?.message || 'Registration failed.', details: process.env.NODE_ENV === 'production' ? undefined : String(error?.stack || '') } });
+    res.status(500).json({ success: false, error: { code: 'REGISTRATION_FAILED', message: error.message || 'Registration failed.' } });
   }
 });
 
@@ -834,6 +857,7 @@ export default app;
 
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({ server: { middlewareMode: true }, appType: 'spa' });
     app.use(vite.middlewares);
   } else {

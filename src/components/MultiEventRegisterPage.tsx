@@ -325,10 +325,13 @@ export function MultiEventRegisterPage({
       try {
         result = responseText ? JSON.parse(responseText) : {};
       } catch {
+        const snippet = responseText.trim().replace(/\s+/g, ' ').slice(0, 240);
         throw new Error(
           response.status === 404
             ? 'Registration API is not deployed. Please check the Vercel /api configuration.'
-            : `Registration server returned an invalid response (${response.status}).`
+            : snippet
+              ? `Registration server returned ${response.status}: ${snippet}`
+              : `Registration server returned an invalid response (${response.status}).`
         );
       }
       if (!response.ok || !result.success) {
