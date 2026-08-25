@@ -378,7 +378,7 @@ app.post('/api/register', async (req, res) => {
 
     const comboSlugs = new Set(['tech-profile-architect', 'nontech-prompt-perfect', 'nontech-memergency']);
     const isIndividualCombo = events.length === 3 && events.every((e: any) => comboSlugs.has(e.slug));
-    const totalAmount = isIndividualCombo ? 350 : events.reduce((sum: number, e: any) => sum + Number(e.entry_fee || 0), 0);
+    const totalAmount = isIndividualCombo ? 400 : events.reduce((sum: number, e: any) => sum + Number(e.entry_fee || 0), 0);
 
     // Generate IGX-XXXX in the application so registration does not depend on a
     // Supabase RPC being present in the deployed database/schema cache.

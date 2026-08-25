@@ -69,10 +69,10 @@ export const EventsPage: React.FC<EventsPageProps> = ({
               </div>
               <div>
                 <span className="text-[11px] text-amber-400 font-bold uppercase tracking-wider block">
-                  FEATURED 3-EVENT COMBO // SAVE ₹100
+                  FEATURED 3-EVENT COMBO // SAVE ₹50
                 </span>
                 <h3 className="text-lg sm:text-xl font-mono font-black text-white uppercase">
-                  3-EVENT COMBO ACCESS — ₹350
+                  3-EVENT COMBO ACCESS — ₹400
                 </h3>
               </div>
             </div>
@@ -90,13 +90,13 @@ export const EventsPage: React.FC<EventsPageProps> = ({
                   venue: 'All Individual Tracks (Zones A, C, X & Placement Labs)',
                   teamSize: 'Individual (1 Member)',
                   maxTeamSize: 1,
-                  entryFee: 350,
+                  entryFee: 400,
                   prizePool: '₹50,000 Total Prize Pool',
-                  shortDescription: 'Unlocks entry to Profile Architect, Memergency and Prompt Perfect for a single flat pass of ₹350 (Save ₹100 compared to individual registrations).',
+                  shortDescription: 'Unlocks entry to Profile Architect, Memergency and Prompt Perfect for a single flat pass of ₹400 (Save ₹50 compared to individual registrations).',
                   fullDescription: 'One single combo pass for individual competitors. Grants full verified entry to Profile Architect, Prompt Perfect, and Memergency.',
                   rules: [
                     'Valid for 1 individual participant across the 3 included individual events.',
-                    'Grants complete access to Profile Architect, Prompt Perfect and Memergency for a flat ₹350 fee (Save ₹100).',
+                    'Grants complete access to Profile Architect, Prompt Perfect and Memergency for a flat ₹400 fee (Save ₹50).',
                     'Single QR Pass grants entry to all 3 included event arenas with refreshments included.',
                     'Certificates awarded for each individual event completed.'
                   ],
@@ -112,7 +112,7 @@ export const EventsPage: React.FC<EventsPageProps> = ({
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-black font-mono text-xs font-black hover:scale-[1.03] transition-all shadow-[0_0_20px_rgba(234,179,8,0.5)] shrink-0"
             >
               <Zap className="w-4 h-4 text-black" />
-              <span>GRAB 3-EVENT COMBO (₹350)</span>
+              <span>GRAB 3-EVENT COMBO (₹400)</span>
             </button>
           </div>
 

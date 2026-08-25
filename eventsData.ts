@@ -19,11 +19,11 @@ export const COMBOS_DATA: EventCombo[] = [
     id: 'combo-individual-all-access',
     title: '3-Event Individual Combo Pass',
     tagline: 'All-access solo pass for Profile Architect, Memergency and Prompt Perfect.',
-    price: 350,
+    price: 400,
     originalPrice: 450,
     savings: 100,
     badge: '3-EVENT INDIVIDUAL COMBO',
-    description: 'One single combo pass for ₹350 that grants complete official entry to Profile Architect, Memergency, and Prompt Perfect.',
+    description: 'One single combo pass for ₹400 that grants complete official entry to Profile Architect, Memergency, and Prompt Perfect.',
     includedEventIds: [
       'tech-profile-architect',
       'nontech-prompt-perfect',
@@ -36,7 +36,7 @@ export const COMBOS_DATA: EventCombo[] = [
     ],
     rules: [
       'Valid for 1 individual attendee across 3 selected individual event tracks.',
-      'Grants all-inclusive access to Profile Architect, Prompt Perfect, and Memergency for a single flat fee of ₹350 (Saves ₹100).',
+      'Grants all-inclusive access to Profile Architect, Prompt Perfect, and Memergency for a single flat fee of ₹400 (Saves ₹50).',
       'Single QR Pass grants entry to all 3 included individual event arenas with refreshments included.',
       'Participation & Merit certificates awarded for each included event completed.'
     ]

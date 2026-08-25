@@ -26,6 +26,7 @@ import { YellowLightningTouchEffect } from './components/YellowLightningTouchEff
 import { InitiatingGate } from './components/InitiatingGate';
 import { soundFx } from './components/AudioEffects';
 import { getStoredRegistrations } from './lib/storage';
+import { PublicVerifyPage } from './components/PublicVerifyPage';
 
 export default function App() {
   // Gate / Initiating Page state
@@ -54,12 +55,18 @@ export default function App() {
   const [showTicketWallet, setShowTicketWallet] = useState(false);
   const [showAdminPortal, setShowAdminPortal] = useState(false);
   const [showParticipantDetailsModal, setShowParticipantDetailsModal] = useState(false);
+  const [verificationToken, setVerificationToken] = useState<string | null>(null);
 
   // Check for /admin route
   useEffect(() => {
     const handleRoute = () => {
       const path = window.location.pathname.toLowerCase();
       const hash = window.location.hash.toLowerCase();
+      if (path === '/verify' || path === '/verify/') {
+        setVerificationToken(new URLSearchParams(window.location.search).get('token')?.trim() || '');
+        return;
+      }
+
       if (path === '/admin' || path === '/admin/' || hash === '#admin') {
         setShowAdminPortal(true);
         return;
@@ -111,6 +118,8 @@ export default function App() {
     const newIds = new Set(newRegs.map((r) => r.id));
     setUserRegistrations((prev) => [...newRegs, ...prev.filter((r) => !newIds.has(r.id))]);
   };
+
+  if (verificationToken !== null) return <PublicVerifyPage token={verificationToken} />;
 
   return (
     <div className="min-h-screen bg-[#030905] text-neutral-100 font-sans selection:bg-emerald-500 selection:text-black relative overflow-x-hidden">
@@ -179,7 +188,7 @@ export default function App() {
                     className="flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 via-green-600 to-amber-500 text-black font-mono text-xs font-black hover:scale-105 transition-all shadow-[0_0_20px_rgba(0,255,102,0.4)]"
                   >
                     <Zap className="w-4 h-4 text-black" />
-                    <span>VIEW ALL 9 EVENTS // ₹350 3-EVENT COMBO</span>
+                    <span>VIEW ALL 9 EVENTS // ₹400 3-EVENT COMBO</span>
                   </button>
                 </div>
               </div>
