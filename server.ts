@@ -502,26 +502,12 @@ async function loadAdminRows(client: SupabaseClient, status?: string, search?: s
 }
 
 app.post('/api/admin/auth', async (req, res) => {
-  const key = safeString(req.body?.passcode ?? req.body?.passkey ?? req.body?.key);
-  const configured = ADMIN_KEYS.size > 0;
-
-  if (!configured) {
-    res.status(500).json({
-      success: false,
-      error: { code: 'ADMIN_KEY_NOT_CONFIGURED', message: 'Admin authentication is not configured on this deployment.' },
-    });
-    return;
-  }
-
+  const key = safeString(req.body?.passcode);
   if (!key || !ADMIN_KEYS.has(key)) {
-    res.status(401).json({
-      success: false,
-      error: { code: 'INVALID_ADMIN_KEY', message: 'Invalid admin passkey.' },
-    });
+    res.status(401).json({ success: false, error: { code: 'INVALID_ADMIN_KEY', message: 'Invalid admin passkey.' } });
     return;
   }
-
-  res.status(200).json({ success: true, data: { message: 'Admin authentication successful.' } });
+  res.json({ success: true, data: { message: 'Admin authentication successful.' } });
 });
 
 app.get('/api/admin/registrations', async (req, res) => {
