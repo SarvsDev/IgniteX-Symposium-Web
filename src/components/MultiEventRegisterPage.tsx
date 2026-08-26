@@ -456,7 +456,7 @@ export function MultiEventRegisterPage({
                     <span className="text-neutral-300">{reg.receiptNumber}</span>
                   </div>
                   <div>
-                    <span className="text-neutral-500 block text-[10px]">TIMING / VENUE</span>
+                    <span className="text-neutral-500 block text-[10px]">DAY / VENUE</span>
                     <span className="text-neutral-300">{reg.eventDay} • {reg.eventVenue}</span>
                   </div>
                   <div>
