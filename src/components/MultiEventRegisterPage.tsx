@@ -948,10 +948,6 @@ export function MultiEventRegisterPage({
                           <span>{event.day}</span>
                         </span>
                         <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3 text-amber-400" />
-                          <span>{event.time}</span>
-                        </span>
-                        <span className="flex items-center gap-1">
                           <Trophy className="w-3 h-3 text-yellow-400" />
                           <span>{event.prizePool}</span>
                         </span>
