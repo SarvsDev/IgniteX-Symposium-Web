@@ -336,7 +336,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     if (registrations.length === 0) return;
 
     const headers = [
-      'Database ID',
       'Registration ID',
       'Participant Name',
       'Age',
@@ -354,19 +353,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       'Attended',
     ];
 
-    const csvEscape = (value: unknown) =>
-      `"${String(value ?? '').replace(/"/g, '""')}"`;
-
     const rows = registrations.map((r) => [
       r.id,
       r.registrationNumber || r.ticketHash,
-      r.userName,
+      `"${r.userName}"`,
       r.userAge || '20',
       r.userEmail,
       r.userPhone,
-      r.userCollege,
-      r.collegeYear || '3rd Year',
-      r.eventTitle,
+      `"${r.userCollege}"`,
+      `"${r.collegeYear || '3rd Year'}"`,
+      `"${r.eventTitle}"`,
       r.eventCategory,
       r.eventDay,
       r.amountPaid,
@@ -378,9 +374,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
     const csvContent =
       'data:text/csv;charset=utf-8,' +
-      [headers, ...rows]
-        .map((row) => row.map(csvEscape).join(','))
-        .join('\n');
+      [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
 
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
