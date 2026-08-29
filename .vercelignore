@@ -1,0 +1,20 @@
+# Legacy Vercel serverless routes superseded by the catch-all handlers
+api/register.ts
+api/verify-ticket.ts
+api/health.ts
+api/config-status.ts
+api/db-test.ts
+api/attendance/verify.ts
+api/admin/auth.ts
+api/admin/registrations.ts
+api/admin/stats.ts
+api/admin/approve-registration.ts
+api/admin/reject-registration.ts
+api/admin/send-email.ts
+api/admin/participant-events.ts
+api/admin/event-counts.ts
+api/admin/database/export.ts
+api/admin/export.ts
+api/admin/sent-emails.ts
+api/admin/payment-proof.ts
+api/admin/google-sheets-config.ts

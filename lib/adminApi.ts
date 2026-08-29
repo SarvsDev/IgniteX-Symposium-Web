@@ -135,7 +135,15 @@ function escapeHtml(v: unknown): string {
   return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 }
 
-async function sendApproval(client: SupabaseClient, registrationId: string) {
+type SendApprovalResult = {
+  success: boolean;
+  error?: string;
+  messageId?: string;
+  recipient?: string;
+  testMode?: boolean;
+};
+
+async function sendApproval(client: SupabaseClient, registrationId: string): Promise<SendApprovalResult> {
   const smtp = createGmailTransport();
   const smtpConfig = getSmtpConfig();
   if (!smtp || !smtpConfig.configured) {
