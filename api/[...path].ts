@@ -27,6 +27,8 @@ function envValue(...keys: string[]): string {
   return '';
 }
 
+// Admin authentication has one source of truth: ADMIN_SECRET_KEY.
+// Never ship a hard-coded admin password or legacy credential.
 const ADMIN_SECRET_KEY = envValue('ADMIN_SECRET_KEY');
 const VALID_ADMIN_KEYS = ADMIN_SECRET_KEY ? new Set([ADMIN_SECRET_KEY]) : new Set<string>();
 const APP_URL = process.env.APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
@@ -156,19 +158,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (req.method === 'POST' && path === 'auth') {
       const body = jsonBody(req);
-      const suppliedKey = text(body.passcode ?? body.passkey ?? body.key);
+      const key = text(body.passcode ?? body.passkey ?? body.key);
 
-      if (!VALID_ADMIN_KEYS.size) {
+      if (!ADMIN_SECRET_KEY) {
+        console.error('[Admin Auth] ADMIN_SECRET_KEY is missing from the deployment environment.');
         return res.status(500).json({
           success: false,
           error: {
             code: 'ADMIN_KEY_NOT_CONFIGURED',
-            message: 'ADMIN_SECRET_KEY is not configured for this deployment.'
+            message: 'Admin authentication is not configured on this deployment.'
           }
         });
       }
 
-      if (!suppliedKey || !VALID_ADMIN_KEYS.has(suppliedKey)) {
+      if (!key || key !== ADMIN_SECRET_KEY) {
         return res.status(401).json({
           success: false,
           error: {

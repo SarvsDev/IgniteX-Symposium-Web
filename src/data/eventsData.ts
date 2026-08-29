@@ -410,7 +410,7 @@ export const EVENTS_DATA: SymposiumEvent[] = [
     minTeamSize: 1,
     maxTeamSize: 1,
     entryFee: 150,
-    prizePool: '1st, 2nd & 3rd Cash Prizes + Top Performer Merit Awards',
+    prizePool: '1st: ₹3,000 | 2nd: ₹1,500 | 3rd: ₹1,000 + Winner Certificates',
     shortDescription: 'Three progressive rounds: AI resume generation from job description, debugging a flawed CV, and keyword inference matching.',
     fullDescription: 'The AI-Assisted Resume Building Event (Profile Architect) is an individual event designed to test participants\' practical resume-building skills, ability to work with modern AI tools, and understanding of job requirements and professional resume standards. Learn responsible AI tool usage, identify resume weaknesses, infer job profiles from keywords, and combine AI assistance with human judgment.',
     rules: [
@@ -492,9 +492,9 @@ export const EVENTS_DATA: SymposiumEvent[] = [
         'Winner certificates and awards for top performers'
       ],
       prizeStructure: [
-        { place: '1st Place', prize: 'Cash Prize + Winner Certificate + Career Award' },
-        { place: '2nd Place', prize: 'Cash Prize + Winner Certificate' },
-        { place: '3rd Place', prize: 'Cash Prize + Winner Certificate' }
+        { place: '1st Place', prize: '₹3,000 + Winner Certificate' },
+        { place: '2nd Place', prize: '₹1,500 + Winner Certificate' },
+        { place: '3rd Place', prize: '₹1,000 + Winner Certificate' }
       ]
     },
     coordinators: [
@@ -743,7 +743,7 @@ export const EVENTS_DATA: SymposiumEvent[] = [
     minTeamSize: 1,
     maxTeamSize: 1,
     entryFee: 150,
-    prizePool: '1st, 2nd & 3rd Cash Prizes + Winner Certificates',
+    prizePool: '1st: ₹3,000 | 2nd: ₹1,500 | 3rd: ₹1,000 + Winner Certificates',
     shortDescription: 'Test your wit, humor, and design sense across Meme Prompt Blitz, Live Meme Battle, and Rapid Meme Showdown.',
     fullDescription: 'Memergency (Meme Machine) is a technical meme creation event conducted as part of IgniteX\'26. The event tests participants\' creativity, humor, technical knowledge, and ability to translate tech, coding, and campus-life concepts into original, relatable memes under timed rounds.',
     rules: [
@@ -826,9 +826,9 @@ export const EVENTS_DATA: SymposiumEvent[] = [
         'Cash prizes and winner certificates'
       ],
       prizeStructure: [
-        { place: '1st Place', prize: 'Cash Prize + Winner Certificate' },
-        { place: '2nd Place', prize: 'Cash Prize + Winner Certificate' },
-        { place: '3rd Place', prize: 'Cash Prize + Winner Certificate' }
+        { place: '1st Place', prize: '₹3,000 + Winner Certificate' },
+        { place: '2nd Place', prize: '₹1,500 + Winner Certificate' },
+        { place: '3rd Place', prize: '₹1,000 + Winner Certificate' }
       ]
     },
     coordinators: [
